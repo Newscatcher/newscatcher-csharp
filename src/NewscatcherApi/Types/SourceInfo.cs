@@ -7,12 +7,21 @@ namespace NewscatcherApi;
 
 public record SourceInfo
 {
+    /// <summary>
+    /// The name of the news source.
+    /// </summary>
     [JsonPropertyName("name_source")]
     public string? NameSource { get; set; }
 
+    /// <summary>
+    /// The domain URL of the news source.
+    /// </summary>
     [JsonPropertyName("domain_url")]
     public required string DomainUrl { get; set; }
 
+    /// <summary>
+    /// The logo of the news source.
+    /// </summary>
     [JsonPropertyName("logo")]
     public string? Logo { get; set; }
 

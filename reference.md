@@ -1,6 +1,6 @@
 # Reference
 ## Search
-<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">GetAsync</a>(SearchGetRequest { ... }) -> OneOf<SearchResponse, ClusteringSearchResponse></code></summary>
+<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">GetAsync</a>(SearchGetRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -12,7 +12,7 @@
 <dl>
 <dd>
 
-This endpoint allows you to search for articles. You can search for articles by keyword, language, country, source, and more.
+Searches for articles based on specified criteria such as keyword, language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -30,25 +30,17 @@ This endpoint allows you to search for articles. You can search for articles by 
 await client.Search.GetAsync(
     new SearchGetRequest
     {
-        Q = "q",
-        PredefinedSources = "predefined_sources",
-        Sources = "sources",
-        NotSources = "not_sources",
-        Lang = "lang",
-        NotLang = "not_lang",
-        Countries = "countries",
-        NotCountries = "not_countries",
-        NotAuthorName = "not_author_name",
-        ParentUrl = "parent_url",
-        AllLinks = "all_links",
-        AllDomainLinks = "all_domain_links",
-        IptcTags = "iptc_tags",
-        NotIptcTags = "not_iptc_tags",
-        SourceName = "source_name",
-        IabTags = "iab_tags",
-        NotIabTags = "not_iab_tags",
-        NewsDomainType = "news_domain_type",
-        NewsType = "news_type",
+        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        PredefinedSources = "top 100 US, top 5 GB",
+        From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        Theme = "Business,Finance",
+        NotTheme = "Crime",
+        IptcTags = "20000199,20000209",
+        NotIptcTags = "20000205,20000209",
+        IabTags = "Business,Events",
+        NotIabTags = "Agriculture,Metals",
+        CustomTags = "Tag1,Tag2,Tag3",
     }
 );
 ```
@@ -77,7 +69,7 @@ await client.Search.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">PostAsync</a>(SearchRequest { ... }) -> OneOf<SearchResponse, ClusteringSearchResponse></code></summary>
+<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">PostAsync</a>(SearchPostRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -89,7 +81,7 @@ await client.Search.GetAsync(
 <dl>
 <dd>
 
-This endpoint allows you to search for articles. You can search for articles by keyword, language, country, source, and more.
+Searches for articles based on specified criteria such as keyword, language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -104,7 +96,18 @@ This endpoint allows you to search for articles. You can search for articles by 
 <dd>
 
 ```csharp
-await client.Search.PostAsync(new SearchRequest { Q = "q" });
+await client.Search.PostAsync(
+    new SearchPostRequest
+    {
+        Q = "renewable energy",
+        PredefinedSources = new List<string>() { "top 50 US" },
+        Lang = new List<string>() { "en" },
+        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
+        AdditionalDomainInfo = true,
+        IsNewsDomain = true,
+    }
+);
 ```
 </dd>
 </dl>
@@ -119,7 +122,7 @@ await client.Search.PostAsync(new SearchRequest { Q = "q" });
 <dl>
 <dd>
 
-**request:** `SearchRequest` 
+**request:** `SearchPostRequest` 
     
 </dd>
 </dl>
@@ -131,8 +134,8 @@ await client.Search.PostAsync(new SearchRequest { Q = "q" });
 </dl>
 </details>
 
-## Latestheadlines
-<details><summary><code>client.Latestheadlines.<a href="/src/NewscatcherApi/Latestheadlines/LatestheadlinesClient.cs">GetAsync</a>(LatestHeadlinesGetRequest { ... }) -> OneOf<ClusteringSearchResponse, LatestHeadlinesResponse></code></summary>
+## LatestHeadlines
+<details><summary><code>client.Latestheadlines.<a href="/src/NewscatcherApi/Latestheadlines/LatestheadlinesClient.cs">GetAsync</a>(LatestHeadlinesGetRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -144,7 +147,7 @@ await client.Search.PostAsync(new SearchRequest { Q = "q" });
 <dl>
 <dd>
 
-This endpoint allows you to get latest headlines. You need to specify since when you want to get the latest headlines. You can also filter by language, country, source, and more.
+Retrieves the latest headlines for the specified time period. You can filter results by language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -162,21 +165,14 @@ This endpoint allows you to get latest headlines. You need to specify since when
 await client.Latestheadlines.GetAsync(
     new LatestHeadlinesGetRequest
     {
-        Lang = "lang",
-        NotLang = "not_lang",
-        Countries = "countries",
-        NotCountries = "not_countries",
-        Sources = "sources",
-        PredefinedSources = "predefined_sources",
-        NotSources = "not_sources",
-        NotAuthorName = "not_author_name",
-        ParentUrl = "parent_url",
-        AllLinks = "all_links",
-        AllDomainLinks = "all_domain_links",
-        IptcTags = "iptc_tags",
-        NotIptcTags = "not_iptc_tags",
-        IabTags = "iab_tags",
-        NotIabTags = "not_iab_tags",
+        PredefinedSources = "top 100 US, top 5 GB",
+        Theme = "Business,Finance",
+        NotTheme = "Crime",
+        IptcTags = "20000199,20000209",
+        NotIptcTags = "20000205,20000209",
+        IabTags = "Business,Events",
+        NotIabTags = "Agriculture,Metals",
+        CustomTags = "Tag1,Tag2,Tag3",
     }
 );
 ```
@@ -205,7 +201,7 @@ await client.Latestheadlines.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Latestheadlines.<a href="/src/NewscatcherApi/Latestheadlines/LatestheadlinesClient.cs">PostAsync</a>(LatestHeadlinesRequest { ... }) -> OneOf<ClusteringSearchResponse, LatestHeadlinesResponse></code></summary>
+<details><summary><code>client.Latestheadlines.<a href="/src/NewscatcherApi/Latestheadlines/LatestheadlinesClient.cs">PostAsync</a>(LatestHeadlinesPostRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -217,7 +213,7 @@ await client.Latestheadlines.GetAsync(
 <dl>
 <dd>
 
-This endpoint allows you to get latest headlines. You need to specify since when you want to get the latest headlines. You can also filter by language, country, source, and more.
+Retrieves the latest headlines for the specified time period. You can filter results by language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -232,7 +228,15 @@ This endpoint allows you to get latest headlines. You need to specify since when
 <dd>
 
 ```csharp
-await client.Latestheadlines.PostAsync(new LatestHeadlinesRequest());
+await client.Latestheadlines.PostAsync(
+    new LatestHeadlinesPostRequest
+    {
+        Lang = "en",
+        PredefinedSources = new List<string>() { "top 50 US", "top 20 GB" },
+        IsOpinion = false,
+        PageSize = 10,
+    }
+);
 ```
 </dd>
 </dl>
@@ -247,7 +251,7 @@ await client.Latestheadlines.PostAsync(new LatestHeadlinesRequest());
 <dl>
 <dd>
 
-**request:** `LatestHeadlinesRequest` 
+**request:** `LatestHeadlinesPostRequest` 
     
 </dd>
 </dl>
@@ -260,7 +264,7 @@ await client.Latestheadlines.PostAsync(new LatestHeadlinesRequest());
 </details>
 
 ## Authors
-<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">GetAsync</a>(AuthorsGetRequest { ... }) -> OneOf<SearchResponse, FailedSearchResponse></code></summary>
+<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">GetAsync</a>(AuthorsGetRequest { ... }) -> OneOf<SearchResponseDto, FailedAuthorsResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -272,7 +276,7 @@ await client.Latestheadlines.PostAsync(new LatestHeadlinesRequest());
 <dl>
 <dd>
 
-This endpoint allows you to search for articles by author. You need to specify the author name. You can also filter by language, country, source, and more.
+Searches for articles written by a specified author. You can filter results by language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -290,21 +294,18 @@ This endpoint allows you to search for articles by author. You need to specify t
 await client.Authors.GetAsync(
     new AuthorsGetRequest
     {
-        AuthorName = "author_name",
-        Sources = "sources",
-        PredefinedSources = "predefined_sources",
-        NotSources = "not_sources",
-        Lang = "lang",
-        NotLang = "not_lang",
-        Countries = "countries",
-        NotCountries = "not_countries",
-        ParentUrl = "parent_url",
-        AllLinks = "all_links",
-        AllDomainLinks = "all_domain_links",
-        IptcTags = "iptc_tags",
-        NotIptcTags = "not_iptc_tags",
-        IabTags = "iab_tags",
-        NotIabTags = "not_iab_tags",
+        AuthorName = "Jane Smith",
+        PredefinedSources = "top 100 US, top 5 GB",
+        From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        Theme = "Business,Finance",
+        NotTheme = "Crime",
+        NerName = "Tesla",
+        IptcTags = "20000199,20000209",
+        NotIptcTags = "20000205,20000209",
+        IabTags = "Business,Events",
+        NotIabTags = "Agriculture,Metals",
+        CustomTags = "Tag1,Tag2,Tag3",
     }
 );
 ```
@@ -333,7 +334,7 @@ await client.Authors.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">PostAsync</a>(AuthorSearchRequest { ... }) -> OneOf<SearchResponse, FailedSearchResponse></code></summary>
+<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">PostAsync</a>(AuthorsPostRequest { ... }) -> OneOf<SearchResponseDto, FailedAuthorsResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -345,7 +346,7 @@ await client.Authors.GetAsync(
 <dl>
 <dd>
 
-This endpoint allows you to search for articles by author. You need to specify the author name. You can also filter by language, country, source, and more.
+Searches for articles by author. You can filter results by language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -360,7 +361,16 @@ This endpoint allows you to search for articles by author. You need to specify t
 <dd>
 
 ```csharp
-await client.Authors.PostAsync(new AuthorSearchRequest { AuthorName = "author_name" });
+await client.Authors.PostAsync(
+    new AuthorsPostRequest
+    {
+        AuthorName = "Joanna Stern",
+        Sources = new List<string>() { "wsj.com", "nytimes.com" },
+        Lang = "en",
+        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
+    }
+);
 ```
 </dd>
 </dl>
@@ -375,7 +385,7 @@ await client.Authors.PostAsync(new AuthorSearchRequest { AuthorName = "author_na
 <dl>
 <dd>
 
-**request:** `AuthorSearchRequest` 
+**request:** `AuthorsPostRequest` 
     
 </dd>
 </dl>
@@ -388,7 +398,7 @@ await client.Authors.PostAsync(new AuthorSearchRequest { AuthorName = "author_na
 </details>
 
 ## SearchLink
-<details><summary><code>client.SearchLink.<a href="/src/NewscatcherApi/SearchLink/SearchLinkClient.cs">SearchUrlGetAsync</a>(SearchUrlGetRequest { ... }) -> SearchResponse</code></summary>
+<details><summary><code>client.SearchLink.<a href="/src/NewscatcherApi/SearchLink/SearchLinkClient.cs">SearchUrlGetAsync</a>(SearchUrlGetRequest { ... }) -> SearchResponseDto</code></summary>
 <dl>
 <dd>
 
@@ -400,7 +410,7 @@ await client.Authors.PostAsync(new AuthorSearchRequest { AuthorName = "author_na
 <dl>
 <dd>
 
-This endpoint allows you to search for articles. You can search for articles by id(s) or link(s).
+Searches for articles based on specified links or IDs. You can filter results by date range.
 </dd>
 </dl>
 </dd>
@@ -415,7 +425,13 @@ This endpoint allows you to search for articles. You can search for articles by 
 <dd>
 
 ```csharp
-await client.SearchLink.SearchUrlGetAsync(new SearchUrlGetRequest { Ids = "ids", Links = "links" });
+await client.SearchLink.SearchUrlGetAsync(
+    new SearchUrlGetRequest
+    {
+        From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+    }
+);
 ```
 </dd>
 </dl>
@@ -442,7 +458,7 @@ await client.SearchLink.SearchUrlGetAsync(new SearchUrlGetRequest { Ids = "ids",
 </dl>
 </details>
 
-<details><summary><code>client.SearchLink.<a href="/src/NewscatcherApi/SearchLink/SearchLinkClient.cs">SearchUrlPostAsync</a>(SearchUrlRequest { ... }) -> SearchResponse</code></summary>
+<details><summary><code>client.SearchLink.<a href="/src/NewscatcherApi/SearchLink/SearchLinkClient.cs">SearchUrlPostAsync</a>(SearchUrlPostRequest { ... }) -> SearchResponseDto</code></summary>
 <dl>
 <dd>
 
@@ -454,7 +470,7 @@ await client.SearchLink.SearchUrlGetAsync(new SearchUrlGetRequest { Ids = "ids",
 <dl>
 <dd>
 
-This endpoint allows you to search for articles. You can search for articles by id(s) or link(s).
+Searches for articles using their ID(s) or link(s).
 </dd>
 </dl>
 </dd>
@@ -469,7 +485,21 @@ This endpoint allows you to search for articles. You can search for articles by 
 <dd>
 
 ```csharp
-await client.SearchLink.SearchUrlPostAsync(new SearchUrlRequest());
+await client.SearchLink.SearchUrlPostAsync(
+    new SearchUrlPostRequest
+    {
+        Ids = new List<string>()
+        {
+            "8ea8a784568ffaa05cb6d1ab2d2e84dd",
+            "0146a551ef05ab1c494a55e806e3ce64",
+        },
+        Links = new List<string>()
+        {
+            "https://www.nytimes.com/2024/08/30/technology/ai-chatbot-chatgpt-manipulation.html",
+            "https://www.bbc.com/news/articles/c39k379grzlo",
+        },
+    }
+);
 ```
 </dd>
 </dl>
@@ -484,7 +514,7 @@ await client.SearchLink.SearchUrlPostAsync(new SearchUrlRequest());
 <dl>
 <dd>
 
-**request:** `SearchUrlRequest` 
+**request:** `SearchUrlPostRequest` 
     
 </dd>
 </dl>
@@ -496,8 +526,8 @@ await client.SearchLink.SearchUrlPostAsync(new SearchUrlRequest());
 </dl>
 </details>
 
-## Searchsimilar
-<details><summary><code>client.Searchsimilar.<a href="/src/NewscatcherApi/Searchsimilar/SearchsimilarClient.cs">GetAsync</a>(SearchSimilarGetRequest { ... }) -> OneOf<SearchResponse, FailedSearchResponse></code></summary>
+## SearchSimilar
+<details><summary><code>client.Searchsimilar.<a href="/src/NewscatcherApi/Searchsimilar/SearchsimilarClient.cs">GetAsync</a>(SearchSimilarGetRequest { ... }) -> OneOf<SearchSimilarResponseDto, FailedSearchSimilarResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -509,7 +539,7 @@ await client.SearchLink.SearchUrlPostAsync(new SearchUrlRequest());
 <dl>
 <dd>
 
-This endpoint returns a list of articles that are similar to the query provided. You also have the option to get similar articles for the results of a search.
+Searches for articles similar to a specified query.
 </dd>
 </dl>
 </dd>
@@ -527,19 +557,17 @@ This endpoint returns a list of articles that are similar to the query provided.
 await client.Searchsimilar.GetAsync(
     new SearchSimilarGetRequest
     {
-        Q = "q",
-        PredefinedSources = "predefined_sources",
-        Sources = "sources",
-        NotSources = "not_sources",
-        Lang = "lang",
-        NotLang = "not_lang",
-        Countries = "countries",
-        NotCountries = "not_countries",
-        ParentUrl = "parent_url",
-        AllLinks = "all_links",
-        AllDomainLinks = "all_domain_links",
-        IptcTags = "iptc_tags",
-        NotIptcTags = "not_iptc_tags",
+        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        SimilarDocumentsFields = "title,summary",
+        PredefinedSources = "top 100 US, top 5 GB",
+        From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        Theme = "Business,Finance",
+        NotTheme = "Crime",
+        NerName = "Tesla",
+        IptcTags = "20000199,20000209",
+        NotIptcTags = "20000205,20000209",
+        CustomTags = "Tag1,Tag2,Tag3",
     }
 );
 ```
@@ -568,7 +596,7 @@ await client.Searchsimilar.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Searchsimilar.<a href="/src/NewscatcherApi/Searchsimilar/SearchsimilarClient.cs">PostAsync</a>(MoreLikeThisRequest { ... }) -> OneOf<SearchResponse, FailedSearchResponse></code></summary>
+<details><summary><code>client.Searchsimilar.<a href="/src/NewscatcherApi/Searchsimilar/SearchsimilarClient.cs">PostAsync</a>(SearchSimilarPostRequest { ... }) -> OneOf<SearchSimilarResponseDto, FailedSearchSimilarResponseDto></code></summary>
 <dl>
 <dd>
 
@@ -580,7 +608,7 @@ await client.Searchsimilar.GetAsync(
 <dl>
 <dd>
 
-This endpoint returns a list of articles that are similar to the query provided. You also have the option to get similar articles for the results of a search.
+Searches for articles similar to the specified query. You can filter results by language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -595,7 +623,14 @@ This endpoint returns a list of articles that are similar to the query provided.
 <dd>
 
 ```csharp
-await client.Searchsimilar.PostAsync(new MoreLikeThisRequest { Q = "q" });
+await client.Searchsimilar.PostAsync(
+    new SearchSimilarPostRequest
+    {
+        Q = "artificial intelligence",
+        IncludeSimilarDocuments = true,
+        SimilarDocumentsNumber = 5,
+    }
+);
 ```
 </dd>
 </dl>
@@ -610,7 +645,7 @@ await client.Searchsimilar.PostAsync(new MoreLikeThisRequest { Q = "q" });
 <dl>
 <dd>
 
-**request:** `MoreLikeThisRequest` 
+**request:** `SearchSimilarPostRequest` 
     
 </dd>
 </dl>
@@ -623,7 +658,7 @@ await client.Searchsimilar.PostAsync(new MoreLikeThisRequest { Q = "q" });
 </details>
 
 ## Sources
-<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">GetAsync</a>(SourcesGetRequest { ... }) -> SourceResponse</code></summary>
+<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">GetAsync</a>(SourcesGetRequest { ... }) -> SourcesResponseDto</code></summary>
 <dl>
 <dd>
 
@@ -635,7 +670,7 @@ await client.Searchsimilar.PostAsync(new MoreLikeThisRequest { Q = "q" });
 <dl>
 <dd>
 
-This endpoint allows you to get the list of sources that are available in the database. You can filter the sources by language and country. The maximum number of sources displayed is set according to your plan. You can find the list of plans and their features here: https://newscatcherapi.com/news-api#news-api-pricing
+Retrieves a list of sources based on specified criteria such as language, country, rank, and more.
 </dd>
 </dl>
 </dd>
@@ -651,16 +686,7 @@ This endpoint allows you to get the list of sources that are available in the da
 
 ```csharp
 await client.Sources.GetAsync(
-    new SourcesGetRequest
-    {
-        Lang = "lang",
-        Countries = "countries",
-        PredefinedSources = "predefined_sources",
-        SourceName = "source_name",
-        SourceUrl = "source_url",
-        NewsDomainType = "news_domain_type",
-        NewsType = "news_type",
-    }
+    new SourcesGetRequest { PredefinedSources = "top 100 US, top 5 GB", SourceUrl = "bbc.com" }
 );
 ```
 </dd>
@@ -688,7 +714,7 @@ await client.Sources.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">PostAsync</a>(SourcesRequest { ... }) -> SourceResponse</code></summary>
+<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">PostAsync</a>(SourcesPostRequest { ... }) -> SourcesResponseDto</code></summary>
 <dl>
 <dd>
 
@@ -700,7 +726,7 @@ await client.Sources.GetAsync(
 <dl>
 <dd>
 
-This endpoint allows you to get the list of sources that are available in the database. You can filter the sources by language and country. The maximum number of sources displayed is set according to your plan. You can find the list of plans and their features here: https://newscatcherapi.com/news-api#news-api-pricing
+Retrieves the list of sources available in the database. You can filter the sources by language, country, and more.
 </dd>
 </dl>
 </dd>
@@ -715,7 +741,16 @@ This endpoint allows you to get the list of sources that are available in the da
 <dd>
 
 ```csharp
-await client.Sources.PostAsync(new SourcesRequest());
+await client.Sources.PostAsync(
+    new SourcesPostRequest
+    {
+        PredefinedSources = new List<string>() { "top 50 US" },
+        IncludeAdditionalInfo = true,
+        IsNewsDomain = true,
+        NewsDomainType = NewsDomainType.OriginalContent,
+        NewsType = "General News Outlets",
+    }
+);
 ```
 </dd>
 </dl>
@@ -730,7 +765,137 @@ await client.Sources.PostAsync(new SourcesRequest());
 <dl>
 <dd>
 
-**request:** `SourcesRequest` 
+**request:** `SourcesPostRequest` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Aggregation
+<details><summary><code>client.Aggregation.<a href="/src/NewscatcherApi/Aggregation/AggregationClient.cs">GetAsync</a>(AggregationGetRequest { ... }) -> OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto></code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves the count of articles aggregated by day or hour based on various search criteria, such as keyword, language, country, and source.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```csharp
+await client.Aggregation.GetAsync(
+    new AggregationGetRequest
+    {
+        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        PredefinedSources = "top 100 US, top 5 GB",
+        From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        Theme = "Business,Finance",
+        NotTheme = "Crime",
+        IptcTags = "20000199,20000209",
+        NotIptcTags = "20000205,20000209",
+    }
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `AggregationGetRequest` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.Aggregation.<a href="/src/NewscatcherApi/Aggregation/AggregationClient.cs">PostAsync</a>(AggregationPostRequest { ... }) -> OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto></code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves the count of articles aggregated by day or hour based on various search criteria, such as keyword, language, country, and source.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```csharp
+await client.Aggregation.PostAsync(
+    new AggregationPostRequest
+    {
+        Q = "renewable energy",
+        PredefinedSources = "top 50 US",
+        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
+        AggregationBy = AggregationBy.Day,
+    }
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `AggregationPostRequest` 
     
 </dd>
 </dl>
@@ -743,7 +908,7 @@ await client.Sources.PostAsync(new SourcesRequest());
 </details>
 
 ## Subscription
-<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">GetAsync</a>() -> SubscriptionResponse</code></summary>
+<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">GetAsync</a>() -> SubscriptionResponseDto</code></summary>
 <dl>
 <dd>
 
@@ -755,7 +920,7 @@ await client.Sources.PostAsync(new SourcesRequest());
 <dl>
 <dd>
 
-This endpoint allows you to get info about your subscription plan.
+Retrieves information about your subscription plan.
 </dd>
 </dl>
 </dd>
@@ -782,7 +947,7 @@ await client.Subscription.GetAsync();
 </dl>
 </details>
 
-<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">PostAsync</a>() -> SubscriptionResponse</code></summary>
+<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">PostAsync</a>() -> SubscriptionResponseDto</code></summary>
 <dl>
 <dd>
 
@@ -794,7 +959,7 @@ await client.Subscription.GetAsync();
 <dl>
 <dd>
 
-This endpoint allows you to get info about your subscription plan.
+Retrieves information about your subscription plan.
 </dd>
 </dl>
 </dd>

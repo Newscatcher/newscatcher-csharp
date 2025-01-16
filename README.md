@@ -22,8 +22,19 @@ Instantiate and use the client with the following:
 ```csharp
 using NewscatcherApi;
 
-var client = new NewscatcherApiClient("API_TOKEN");
-await client.Search.PostAsync(new SearchRequest { Q = "q" });
+var client = new NewscatcherApiClient("API_KEY");
+await client.Search.PostAsync(
+    new SearchPostRequest
+    {
+        Q = "renewable energy",
+        PredefinedSources = new List<string>() { "top 50 US" },
+        Lang = new List<string>() { "en" },
+        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
+        AdditionalDomainInfo = true,
+        IsNewsDomain = true,
+    }
+);
 ```
 
 ## Exception Handling
