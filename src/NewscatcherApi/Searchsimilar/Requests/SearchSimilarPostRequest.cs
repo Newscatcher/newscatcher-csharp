@@ -6,7 +6,7 @@ using OneOf;
 
 namespace NewscatcherApi;
 
-public record MoreLikeThisRequest
+public record SearchSimilarPostRequest
 {
     [JsonPropertyName("q")]
     public required string Q { get; set; }
@@ -24,43 +24,43 @@ public record MoreLikeThisRequest
     public string? SimilarDocumentsFields { get; set; }
 
     [JsonPropertyName("predefined_sources")]
-    public object? PredefinedSources { get; set; }
+    public OneOf<string, IEnumerable<string>>? PredefinedSources { get; set; }
 
     [JsonPropertyName("sources")]
-    public object? Sources { get; set; }
+    public OneOf<string, IEnumerable<string>>? Sources { get; set; }
 
     [JsonPropertyName("not_sources")]
-    public object? NotSources { get; set; }
+    public OneOf<string, IEnumerable<string>>? NotSources { get; set; }
 
     [JsonPropertyName("lang")]
-    public object? Lang { get; set; }
+    public OneOf<string, IEnumerable<string>>? Lang { get; set; }
 
     [JsonPropertyName("not_lang")]
-    public object? NotLang { get; set; }
+    public OneOf<string, IEnumerable<string>>? NotLang { get; set; }
 
     [JsonPropertyName("countries")]
-    public object? Countries { get; set; }
+    public OneOf<string, IEnumerable<string>>? Countries { get; set; }
 
     [JsonPropertyName("not_countries")]
-    public object? NotCountries { get; set; }
+    public OneOf<string, IEnumerable<string>>? NotCountries { get; set; }
 
     [JsonPropertyName("from_")]
-    public OneOf<string, DateTime>? From { get; set; }
+    public OneOf<DateTime, string>? From { get; set; }
 
     [JsonPropertyName("to_")]
-    public OneOf<string, DateTime>? To { get; set; }
+    public OneOf<DateTime, string>? To { get; set; }
 
     [JsonPropertyName("by_parse_date")]
     public bool? ByParseDate { get; set; }
 
     [JsonPropertyName("published_date_precision")]
-    public string? PublishedDatePrecision { get; set; }
+    public PublishedDatePrecision? PublishedDatePrecision { get; set; }
 
     [JsonPropertyName("sort_by")]
-    public string? SortBy { get; set; }
+    public SortBy? SortBy { get; set; }
 
     [JsonPropertyName("ranked_only")]
-    public OneOf<string, bool>? RankedOnly { get; set; }
+    public bool? RankedOnly { get; set; }
 
     [JsonPropertyName("from_rank")]
     public int? FromRank { get; set; }
@@ -78,13 +78,13 @@ public record MoreLikeThisRequest
     public bool? IsPaidContent { get; set; }
 
     [JsonPropertyName("parent_url")]
-    public object? ParentUrl { get; set; }
+    public OneOf<string, IEnumerable<string>>? ParentUrl { get; set; }
 
     [JsonPropertyName("all_links")]
-    public object? AllLinks { get; set; }
+    public OneOf<string, IEnumerable<string>>? AllLinks { get; set; }
 
     [JsonPropertyName("all_domain_links")]
-    public object? AllDomainLinks { get; set; }
+    public OneOf<string, IEnumerable<string>>? AllDomainLinks { get; set; }
 
     [JsonPropertyName("word_count_min")]
     public int? WordCountMin { get; set; }
@@ -105,28 +105,34 @@ public record MoreLikeThisRequest
     public bool? HasNlp { get; set; }
 
     [JsonPropertyName("theme")]
-    public string? Theme { get; set; }
+    public OneOf<string, IEnumerable<string>>? Theme { get; set; }
 
     [JsonPropertyName("not_theme")]
-    public string? NotTheme { get; set; }
+    public OneOf<string, IEnumerable<string>>? NotTheme { get; set; }
+
+    [JsonPropertyName("ner_name")]
+    public string? NerName { get; set; }
 
     [JsonPropertyName("title_sentiment_min")]
-    public double? TitleSentimentMin { get; set; }
+    public float? TitleSentimentMin { get; set; }
 
     [JsonPropertyName("title_sentiment_max")]
-    public double? TitleSentimentMax { get; set; }
+    public float? TitleSentimentMax { get; set; }
 
     [JsonPropertyName("content_sentiment_min")]
-    public double? ContentSentimentMin { get; set; }
+    public float? ContentSentimentMin { get; set; }
 
     [JsonPropertyName("content_sentiment_max")]
-    public double? ContentSentimentMax { get; set; }
+    public float? ContentSentimentMax { get; set; }
 
     [JsonPropertyName("iptc_tags")]
-    public object? IptcTags { get; set; }
+    public OneOf<string, IEnumerable<string>>? IptcTags { get; set; }
 
     [JsonPropertyName("not_iptc_tags")]
-    public object? NotIptcTags { get; set; }
+    public OneOf<string, IEnumerable<string>>? NotIptcTags { get; set; }
+
+    [JsonPropertyName("custom_tags")]
+    public OneOf<string, IEnumerable<string>>? CustomTags { get; set; }
 
     public override string ToString()
     {

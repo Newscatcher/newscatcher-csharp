@@ -17,29 +17,41 @@ public partial class SearchLinkClient
     }
 
     /// <summary>
-    /// This endpoint allows you to search for articles. You can search for articles by id(s) or link(s).
+    /// Searches for articles based on specified links or IDs. You can filter results by date range.
     /// </summary>
     /// <example>
     /// <code>
-    /// await client.SearchLink.SearchUrlGetAsync(new SearchUrlGetRequest { Ids = "ids", Links = "links" });
+    /// await client.SearchLink.SearchUrlGetAsync(
+    ///     new SearchUrlGetRequest
+    ///     {
+    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+    ///     }
+    /// );
     /// </code>
     /// </example>
-    public async Task<SearchResponse> SearchUrlGetAsync(
+    public async Task<SearchResponseDto> SearchUrlGetAsync(
         SearchUrlGetRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
         var _query = new Dictionary<string, object>();
-        _query["ids"] = request.Ids;
-        _query["links"] = request.Links;
+        if (request.Ids != null)
+        {
+            _query["ids"] = request.Ids;
+        }
+        if (request.Links != null)
+        {
+            _query["links"] = request.Links;
+        }
         if (request.From != null)
         {
-            _query["from_"] = request.From;
+            _query["from_"] = request.From.ToString();
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To;
+            _query["to_"] = request.To.ToString();
         }
         if (request.Page != null)
         {
@@ -65,7 +77,7 @@ public partial class SearchLinkClient
         {
             try
             {
-                return JsonUtils.Deserialize<SearchResponse>(responseBody)!;
+                return JsonUtils.Deserialize<SearchResponseDto>(responseBody)!;
             }
             catch (JsonException e)
             {
@@ -77,10 +89,20 @@ public partial class SearchLinkClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)
@@ -95,15 +117,29 @@ public partial class SearchLinkClient
     }
 
     /// <summary>
-    /// This endpoint allows you to search for articles. You can search for articles by id(s) or link(s).
+    /// Searches for articles using their ID(s) or link(s).
     /// </summary>
     /// <example>
     /// <code>
-    /// await client.SearchLink.SearchUrlPostAsync(new SearchUrlRequest());
+    /// await client.SearchLink.SearchUrlPostAsync(
+    ///     new SearchUrlPostRequest
+    ///     {
+    ///         Ids = new List&lt;string&gt;()
+    ///         {
+    ///             "8ea8a784568ffaa05cb6d1ab2d2e84dd",
+    ///             "0146a551ef05ab1c494a55e806e3ce64",
+    ///         },
+    ///         Links = new List&lt;string&gt;()
+    ///         {
+    ///             "https://www.nytimes.com/2024/08/30/technology/ai-chatbot-chatgpt-manipulation.html",
+    ///             "https://www.bbc.com/news/articles/c39k379grzlo",
+    ///         },
+    ///     }
+    /// );
     /// </code>
     /// </example>
-    public async Task<SearchResponse> SearchUrlPostAsync(
-        SearchUrlRequest request,
+    public async Task<SearchResponseDto> SearchUrlPostAsync(
+        SearchUrlPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
@@ -125,7 +161,7 @@ public partial class SearchLinkClient
         {
             try
             {
-                return JsonUtils.Deserialize<SearchResponse>(responseBody)!;
+                return JsonUtils.Deserialize<SearchResponseDto>(responseBody)!;
             }
             catch (JsonException e)
             {
@@ -137,10 +173,20 @@ public partial class SearchLinkClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)

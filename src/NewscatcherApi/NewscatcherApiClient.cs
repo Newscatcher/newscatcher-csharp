@@ -8,15 +8,16 @@ public partial class NewscatcherApiClient
 {
     private RawClient _client;
 
-    public NewscatcherApiClient(string apiToken, ClientOptions? clientOptions = null)
+    public NewscatcherApiClient(string? apiKey = null, ClientOptions? clientOptions = null)
     {
         var defaultHeaders = new Headers(
             new Dictionary<string, string>()
             {
+                { "x-api-token", apiKey },
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "NewscatcherApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "newscatcher-sdk/1.0.0" },
+                { "User-Agent", "Newscatcher.Client/1.1.0" },
             }
         );
         clientOptions ??= new ClientOptions();
@@ -34,6 +35,7 @@ public partial class NewscatcherApiClient
         SearchLink = new SearchLinkClient(_client);
         Searchsimilar = new SearchsimilarClient(_client);
         Sources = new SourcesClient(_client);
+        Aggregation = new AggregationClient(_client);
         Subscription = new SubscriptionClient(_client);
     }
 
@@ -48,6 +50,8 @@ public partial class NewscatcherApiClient
     public SearchsimilarClient Searchsimilar { get; init; }
 
     public SourcesClient Sources { get; init; }
+
+    public AggregationClient Aggregation { get; init; }
 
     public SubscriptionClient Subscription { get; init; }
 }

@@ -17,14 +17,14 @@ public partial class SubscriptionClient
     }
 
     /// <summary>
-    /// This endpoint allows you to get info about your subscription plan.
+    /// Retrieves information about your subscription plan.
     /// </summary>
     /// <example>
     /// <code>
     /// await client.Subscription.GetAsync();
     /// </code>
     /// </example>
-    public async Task<SubscriptionResponse> GetAsync(
+    public async Task<SubscriptionResponseDto> GetAsync(
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
@@ -44,7 +44,7 @@ public partial class SubscriptionClient
         {
             try
             {
-                return JsonUtils.Deserialize<SubscriptionResponse>(responseBody)!;
+                return JsonUtils.Deserialize<SubscriptionResponseDto>(responseBody)!;
             }
             catch (JsonException e)
             {
@@ -56,10 +56,20 @@ public partial class SubscriptionClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)
@@ -74,14 +84,14 @@ public partial class SubscriptionClient
     }
 
     /// <summary>
-    /// This endpoint allows you to get info about your subscription plan.
+    /// Retrieves information about your subscription plan.
     /// </summary>
     /// <example>
     /// <code>
     /// await client.Subscription.PostAsync();
     /// </code>
     /// </example>
-    public async Task<SubscriptionResponse> PostAsync(
+    public async Task<SubscriptionResponseDto> PostAsync(
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
@@ -101,7 +111,7 @@ public partial class SubscriptionClient
         {
             try
             {
-                return JsonUtils.Deserialize<SubscriptionResponse>(responseBody)!;
+                return JsonUtils.Deserialize<SubscriptionResponseDto>(responseBody)!;
             }
             catch (JsonException e)
             {
@@ -113,10 +123,20 @@ public partial class SubscriptionClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)

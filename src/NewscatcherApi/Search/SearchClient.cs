@@ -18,37 +18,29 @@ public partial class SearchClient
     }
 
     /// <summary>
-    /// This endpoint allows you to search for articles. You can search for articles by keyword, language, country, source, and more.
+    /// Searches for articles based on specified criteria such as keyword, language, country, source, and more.
     /// </summary>
     /// <example>
     /// <code>
     /// await client.Search.GetAsync(
     ///     new SearchGetRequest
     ///     {
-    ///         Q = "q",
-    ///         PredefinedSources = "predefined_sources",
-    ///         Sources = "sources",
-    ///         NotSources = "not_sources",
-    ///         Lang = "lang",
-    ///         NotLang = "not_lang",
-    ///         Countries = "countries",
-    ///         NotCountries = "not_countries",
-    ///         NotAuthorName = "not_author_name",
-    ///         ParentUrl = "parent_url",
-    ///         AllLinks = "all_links",
-    ///         AllDomainLinks = "all_domain_links",
-    ///         IptcTags = "iptc_tags",
-    ///         NotIptcTags = "not_iptc_tags",
-    ///         SourceName = "source_name",
-    ///         IabTags = "iab_tags",
-    ///         NotIabTags = "not_iab_tags",
-    ///         NewsDomainType = "news_domain_type",
-    ///         NewsType = "news_type",
+    ///         Q = "technology AND (Apple OR Microsoft) NOT Google",
+    ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         Theme = "Business,Finance",
+    ///         NotTheme = "Crime",
+    ///         IptcTags = "20000199,20000209",
+    ///         NotIptcTags = "20000205,20000209",
+    ///         IabTags = "Business,Events",
+    ///         NotIabTags = "Agriculture,Metals",
+    ///         CustomTags = "Tag1,Tag2,Tag3",
     ///     }
     /// );
     /// </code>
     /// </example>
-    public async Task<OneOf<SearchResponse, ClusteringSearchResponse>> GetAsync(
+    public async Task<OneOf<SearchResponseDto, ClusteredSearchResponseDto>> GetAsync(
         SearchGetRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
@@ -56,95 +48,141 @@ public partial class SearchClient
     {
         var _query = new Dictionary<string, object>();
         _query["q"] = request.Q;
-        _query["predefined_sources"] = request.PredefinedSources;
-        _query["sources"] = request.Sources;
-        _query["not_sources"] = request.NotSources;
-        _query["lang"] = request.Lang;
-        _query["not_lang"] = request.NotLang;
-        _query["countries"] = request.Countries;
-        _query["not_countries"] = request.NotCountries;
-        _query["not_author_name"] = request.NotAuthorName;
-        _query["parent_url"] = request.ParentUrl;
-        _query["all_links"] = request.AllLinks;
-        _query["all_domain_links"] = request.AllDomainLinks;
-        _query["iptc_tags"] = request.IptcTags;
-        _query["not_iptc_tags"] = request.NotIptcTags;
-        _query["source_name"] = request.SourceName;
-        _query["iab_tags"] = request.IabTags;
-        _query["not_iab_tags"] = request.NotIabTags;
-        _query["news_domain_type"] = request.NewsDomainType;
-        _query["news_type"] = request.NewsType;
         if (request.SearchIn != null)
         {
             _query["search_in"] = request.SearchIn;
         }
+        if (request.PredefinedSources != null)
+        {
+            _query["predefined_sources"] = request.PredefinedSources;
+        }
+        if (request.SourceName != null)
+        {
+            _query["source_name"] = request.SourceName;
+        }
+        if (request.Sources != null)
+        {
+            _query["sources"] = request.Sources;
+        }
+        if (request.NotSources != null)
+        {
+            _query["not_sources"] = request.NotSources;
+        }
+        if (request.Lang != null)
+        {
+            _query["lang"] = request.Lang;
+        }
+        if (request.NotLang != null)
+        {
+            _query["not_lang"] = request.NotLang;
+        }
+        if (request.Countries != null)
+        {
+            _query["countries"] = request.Countries;
+        }
+        if (request.NotCountries != null)
+        {
+            _query["not_countries"] = request.NotCountries;
+        }
+        if (request.NotAuthorName != null)
+        {
+            _query["not_author_name"] = request.NotAuthorName;
+        }
         if (request.From != null)
         {
-            _query["from_"] = request.From;
+            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To;
+            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
         }
         if (request.PublishedDatePrecision != null)
         {
-            _query["published_date_precision"] = request.PublishedDatePrecision;
+            _query["published_date_precision"] = request.PublishedDatePrecision.Value.Stringify();
         }
         if (request.ByParseDate != null)
         {
-            _query["by_parse_date"] = request.ByParseDate;
+            _query["by_parse_date"] = request.ByParseDate.ToString();
         }
         if (request.SortBy != null)
         {
-            _query["sort_by"] = request.SortBy;
+            _query["sort_by"] = request.SortBy.Value.Stringify();
         }
         if (request.RankedOnly != null)
         {
-            _query["ranked_only"] = request.RankedOnly;
+            _query["ranked_only"] = request.RankedOnly.ToString();
         }
         if (request.FromRank != null)
         {
-            _query["from_rank"] = request.FromRank;
+            _query["from_rank"] = request.FromRank.ToString();
         }
         if (request.ToRank != null)
         {
-            _query["to_rank"] = request.ToRank;
+            _query["to_rank"] = request.ToRank.ToString();
         }
         if (request.IsHeadline != null)
         {
-            _query["is_headline"] = request.IsHeadline;
+            _query["is_headline"] = request.IsHeadline.ToString();
         }
         if (request.IsOpinion != null)
         {
-            _query["is_opinion"] = request.IsOpinion;
+            _query["is_opinion"] = request.IsOpinion.ToString();
         }
         if (request.IsPaidContent != null)
         {
-            _query["is_paid_content"] = request.IsPaidContent;
+            _query["is_paid_content"] = request.IsPaidContent.ToString();
+        }
+        if (request.ParentUrl != null)
+        {
+            _query["parent_url"] = request.ParentUrl;
+        }
+        if (request.AllLinks != null)
+        {
+            _query["all_links"] = request.AllLinks;
+        }
+        if (request.AllDomainLinks != null)
+        {
+            _query["all_domain_links"] = request.AllDomainLinks;
+        }
+        if (request.AdditionalDomainInfo != null)
+        {
+            _query["additional_domain_info"] = request.AdditionalDomainInfo.ToString();
+        }
+        if (request.IsNewsDomain != null)
+        {
+            _query["is_news_domain"] = request.IsNewsDomain.ToString();
+        }
+        if (request.NewsDomainType != null)
+        {
+            _query["news_domain_type"] = request.NewsDomainType.Value.Stringify();
+        }
+        if (request.NewsType != null)
+        {
+            _query["news_type"] = request.NewsType;
         }
         if (request.WordCountMin != null)
         {
-            _query["word_count_min"] = request.WordCountMin;
+            _query["word_count_min"] = request.WordCountMin.ToString();
         }
         if (request.WordCountMax != null)
         {
-            _query["word_count_max"] = request.WordCountMax;
+            _query["word_count_max"] = request.WordCountMax.ToString();
         }
         if (request.Page != null)
         {
-            _query["page"] = request.Page;
+            _query["page"] = request.Page.ToString();
         }
         if (request.PageSize != null)
         {
-            _query["page_size"] = request.PageSize;
-        }
-        if (request.ClusteringVariable != null)
-        {
-            _query["clustering_variable"] = request.ClusteringVariable;
+            _query["page_size"] = request.PageSize.ToString();
         }
         if (request.ClusteringEnabled != null)
         {
-            _query["clustering_enabled"] = request.ClusteringEnabled;
+            _query["clustering_enabled"] = request.ClusteringEnabled.ToString();
+        }
+        if (request.ClusteringVariable != null)
+        {
+            _query["clustering_variable"] = request.ClusteringVariable.Value.Stringify();
         }
         if (request.ClusteringThreshold != null)
         {
@@ -152,7 +190,7 @@ public partial class SearchClient
         }
         if (request.IncludeNlpData != null)
         {
-            _query["include_nlp_data"] = request.IncludeNlpData;
+            _query["include_nlp_data"] = request.IncludeNlpData.ToString();
         }
         if (request.HasNlp != null)
         {
@@ -198,17 +236,29 @@ public partial class SearchClient
         {
             _query["content_sentiment_max"] = request.ContentSentimentMax.ToString();
         }
+        if (request.IptcTags != null)
+        {
+            _query["iptc_tags"] = request.IptcTags;
+        }
+        if (request.NotIptcTags != null)
+        {
+            _query["not_iptc_tags"] = request.NotIptcTags;
+        }
+        if (request.IabTags != null)
+        {
+            _query["iab_tags"] = request.IabTags;
+        }
+        if (request.NotIabTags != null)
+        {
+            _query["not_iab_tags"] = request.NotIabTags;
+        }
+        if (request.CustomTags != null)
+        {
+            _query["custom_tags"] = request.CustomTags;
+        }
         if (request.ExcludeDuplicates != null)
         {
             _query["exclude_duplicates"] = request.ExcludeDuplicates.ToString();
-        }
-        if (request.AdditionalDomainInfo != null)
-        {
-            _query["additional_domain_info"] = request.AdditionalDomainInfo.ToString();
-        }
-        if (request.IsNewsDomain != null)
-        {
-            _query["is_news_domain"] = request.IsNewsDomain.ToString();
         }
         var response = await _client.MakeRequestAsync(
             new RawClient.JsonApiRequest
@@ -226,7 +276,7 @@ public partial class SearchClient
         {
             try
             {
-                return JsonUtils.Deserialize<OneOf<SearchResponse, ClusteringSearchResponse>>(
+                return JsonUtils.Deserialize<OneOf<SearchResponseDto, ClusteredSearchResponseDto>>(
                     responseBody
                 )!;
             }
@@ -240,10 +290,20 @@ public partial class SearchClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)
@@ -258,15 +318,26 @@ public partial class SearchClient
     }
 
     /// <summary>
-    /// This endpoint allows you to search for articles. You can search for articles by keyword, language, country, source, and more.
+    /// Searches for articles based on specified criteria such as keyword, language, country, source, and more.
     /// </summary>
     /// <example>
     /// <code>
-    /// await client.Search.PostAsync(new SearchRequest { Q = "q" });
+    /// await client.Search.PostAsync(
+    ///     new SearchPostRequest
+    ///     {
+    ///         Q = "renewable energy",
+    ///         PredefinedSources = new List&lt;string&gt;() { "top 50 US" },
+    ///         Lang = new List&lt;string&gt;() { "en" },
+    ///         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
+    ///         AdditionalDomainInfo = true,
+    ///         IsNewsDomain = true,
+    ///     }
+    /// );
     /// </code>
     /// </example>
-    public async Task<OneOf<SearchResponse, ClusteringSearchResponse>> PostAsync(
-        SearchRequest request,
+    public async Task<OneOf<SearchResponseDto, ClusteredSearchResponseDto>> PostAsync(
+        SearchPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
@@ -288,7 +359,7 @@ public partial class SearchClient
         {
             try
             {
-                return JsonUtils.Deserialize<OneOf<SearchResponse, ClusteringSearchResponse>>(
+                return JsonUtils.Deserialize<OneOf<SearchResponseDto, ClusteredSearchResponseDto>>(
                     responseBody
                 )!;
             }
@@ -302,10 +373,20 @@ public partial class SearchClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)

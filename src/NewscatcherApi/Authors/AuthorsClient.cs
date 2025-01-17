@@ -18,33 +18,30 @@ public partial class AuthorsClient
     }
 
     /// <summary>
-    /// This endpoint allows you to search for articles by author. You need to specify the author name. You can also filter by language, country, source, and more.
+    /// Searches for articles written by a specified author. You can filter results by language, country, source, and more.
     /// </summary>
     /// <example>
     /// <code>
     /// await client.Authors.GetAsync(
     ///     new AuthorsGetRequest
     ///     {
-    ///         AuthorName = "author_name",
-    ///         Sources = "sources",
-    ///         PredefinedSources = "predefined_sources",
-    ///         NotSources = "not_sources",
-    ///         Lang = "lang",
-    ///         NotLang = "not_lang",
-    ///         Countries = "countries",
-    ///         NotCountries = "not_countries",
-    ///         ParentUrl = "parent_url",
-    ///         AllLinks = "all_links",
-    ///         AllDomainLinks = "all_domain_links",
-    ///         IptcTags = "iptc_tags",
-    ///         NotIptcTags = "not_iptc_tags",
-    ///         IabTags = "iab_tags",
-    ///         NotIabTags = "not_iab_tags",
+    ///         AuthorName = "Jane Smith",
+    ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         Theme = "Business,Finance",
+    ///         NotTheme = "Crime",
+    ///         NerName = "Tesla",
+    ///         IptcTags = "20000199,20000209",
+    ///         NotIptcTags = "20000205,20000209",
+    ///         IabTags = "Business,Events",
+    ///         NotIabTags = "Agriculture,Metals",
+    ///         CustomTags = "Tag1,Tag2,Tag3",
     ///     }
     /// );
     /// </code>
     /// </example>
-    public async Task<OneOf<SearchResponse, FailedSearchResponse>> GetAsync(
+    public async Task<OneOf<SearchResponseDto, FailedAuthorsResponseDto>> GetAsync(
         AuthorsGetRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
@@ -52,35 +49,49 @@ public partial class AuthorsClient
     {
         var _query = new Dictionary<string, object>();
         _query["author_name"] = request.AuthorName;
-        _query["sources"] = request.Sources;
-        _query["predefined_sources"] = request.PredefinedSources;
-        _query["not_sources"] = request.NotSources;
-        _query["lang"] = request.Lang;
-        _query["not_lang"] = request.NotLang;
-        _query["countries"] = request.Countries;
-        _query["not_countries"] = request.NotCountries;
-        _query["parent_url"] = request.ParentUrl;
-        _query["all_links"] = request.AllLinks;
-        _query["all_domain_links"] = request.AllDomainLinks;
-        _query["iptc_tags"] = request.IptcTags;
-        _query["not_iptc_tags"] = request.NotIptcTags;
-        _query["iab_tags"] = request.IabTags;
-        _query["not_iab_tags"] = request.NotIabTags;
         if (request.NotAuthorName != null)
         {
             _query["not_author_name"] = request.NotAuthorName;
         }
+        if (request.PredefinedSources != null)
+        {
+            _query["predefined_sources"] = request.PredefinedSources;
+        }
+        if (request.Sources != null)
+        {
+            _query["sources"] = request.Sources;
+        }
+        if (request.NotSources != null)
+        {
+            _query["not_sources"] = request.NotSources;
+        }
+        if (request.Lang != null)
+        {
+            _query["lang"] = request.Lang;
+        }
+        if (request.NotLang != null)
+        {
+            _query["not_lang"] = request.NotLang;
+        }
+        if (request.Countries != null)
+        {
+            _query["countries"] = request.Countries;
+        }
+        if (request.NotCountries != null)
+        {
+            _query["not_countries"] = request.NotCountries;
+        }
         if (request.From != null)
         {
-            _query["from_"] = request.From;
+            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To;
+            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
         }
         if (request.PublishedDatePrecision != null)
         {
-            _query["published_date_precision"] = request.PublishedDatePrecision;
+            _query["published_date_precision"] = request.PublishedDatePrecision.Value.Stringify();
         }
         if (request.ByParseDate != null)
         {
@@ -88,11 +99,11 @@ public partial class AuthorsClient
         }
         if (request.SortBy != null)
         {
-            _query["sort_by"] = request.SortBy;
+            _query["sort_by"] = request.SortBy.Value.Stringify();
         }
         if (request.RankedOnly != null)
         {
-            _query["ranked_only"] = request.RankedOnly;
+            _query["ranked_only"] = request.RankedOnly.ToString();
         }
         if (request.FromRank != null)
         {
@@ -113,6 +124,18 @@ public partial class AuthorsClient
         if (request.IsPaidContent != null)
         {
             _query["is_paid_content"] = request.IsPaidContent.ToString();
+        }
+        if (request.ParentUrl != null)
+        {
+            _query["parent_url"] = request.ParentUrl;
+        }
+        if (request.AllLinks != null)
+        {
+            _query["all_links"] = request.AllLinks;
+        }
+        if (request.AllDomainLinks != null)
+        {
+            _query["all_domain_links"] = request.AllDomainLinks;
         }
         if (request.WordCountMin != null)
         {
@@ -146,6 +169,10 @@ public partial class AuthorsClient
         {
             _query["not_theme"] = request.NotTheme;
         }
+        if (request.NerName != null)
+        {
+            _query["ner_name"] = request.NerName;
+        }
         if (request.TitleSentimentMin != null)
         {
             _query["title_sentiment_min"] = request.TitleSentimentMin.ToString();
@@ -161,6 +188,26 @@ public partial class AuthorsClient
         if (request.ContentSentimentMax != null)
         {
             _query["content_sentiment_max"] = request.ContentSentimentMax.ToString();
+        }
+        if (request.IptcTags != null)
+        {
+            _query["iptc_tags"] = request.IptcTags;
+        }
+        if (request.NotIptcTags != null)
+        {
+            _query["not_iptc_tags"] = request.NotIptcTags;
+        }
+        if (request.IabTags != null)
+        {
+            _query["iab_tags"] = request.IabTags;
+        }
+        if (request.NotIabTags != null)
+        {
+            _query["not_iab_tags"] = request.NotIabTags;
+        }
+        if (request.CustomTags != null)
+        {
+            _query["custom_tags"] = request.CustomTags;
         }
         var response = await _client.MakeRequestAsync(
             new RawClient.JsonApiRequest
@@ -178,7 +225,7 @@ public partial class AuthorsClient
         {
             try
             {
-                return JsonUtils.Deserialize<OneOf<SearchResponse, FailedSearchResponse>>(
+                return JsonUtils.Deserialize<OneOf<SearchResponseDto, FailedAuthorsResponseDto>>(
                     responseBody
                 )!;
             }
@@ -192,10 +239,20 @@ public partial class AuthorsClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)
@@ -210,15 +267,24 @@ public partial class AuthorsClient
     }
 
     /// <summary>
-    /// This endpoint allows you to search for articles by author. You need to specify the author name. You can also filter by language, country, source, and more.
+    /// Searches for articles by author. You can filter results by language, country, source, and more.
     /// </summary>
     /// <example>
     /// <code>
-    /// await client.Authors.PostAsync(new AuthorSearchRequest { AuthorName = "author_name" });
+    /// await client.Authors.PostAsync(
+    ///     new AuthorsPostRequest
+    ///     {
+    ///         AuthorName = "Joanna Stern",
+    ///         Sources = new List&lt;string&gt;() { "wsj.com", "nytimes.com" },
+    ///         Lang = "en",
+    ///         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
+    ///     }
+    /// );
     /// </code>
     /// </example>
-    public async Task<OneOf<SearchResponse, FailedSearchResponse>> PostAsync(
-        AuthorSearchRequest request,
+    public async Task<OneOf<SearchResponseDto, FailedAuthorsResponseDto>> PostAsync(
+        AuthorsPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
@@ -240,7 +306,7 @@ public partial class AuthorsClient
         {
             try
             {
-                return JsonUtils.Deserialize<OneOf<SearchResponse, FailedSearchResponse>>(
+                return JsonUtils.Deserialize<OneOf<SearchResponseDto, FailedAuthorsResponseDto>>(
                     responseBody
                 )!;
             }
@@ -254,10 +320,20 @@ public partial class AuthorsClient
         {
             switch (response.StatusCode)
             {
+                case 400:
+                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                case 401:
+                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                case 403:
+                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                case 408:
+                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
                 case 422:
-                    throw new UnprocessableEntityError(
-                        JsonUtils.Deserialize<HttpValidationError>(responseBody)
-                    );
+                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
+                case 429:
+                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                case 500:
+                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
             }
         }
         catch (JsonException)
