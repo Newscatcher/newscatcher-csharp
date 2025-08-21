@@ -1,10 +1,10 @@
+using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record SearchUrlGetRequest
 {
     /// <summary>
@@ -14,6 +14,7 @@ public record SearchUrlGetRequest
     ///
     /// **Caution**: You can use either the `links` or the `ids` parameter, but not both at the same time.
     /// </summary>
+    [JsonIgnore]
     public string? Ids { get; set; }
 
     /// <summary>
@@ -23,10 +24,13 @@ public record SearchUrlGetRequest
     ///
     /// **Caution**: You can use either the `links` or the `ids` parameter, but not both at the same time.
     /// </summary>
+    [JsonIgnore]
     public string? Links { get; set; }
 
+    [JsonIgnore]
     public OneOf<DateTime, string>? From { get; set; }
 
+    [JsonIgnore]
     public OneOf<DateTime, string>? To { get; set; }
 
     /// <summary>
@@ -34,13 +38,22 @@ public record SearchUrlGetRequest
     ///
     /// For details, see [How to paginate large datasets](https://www.newscatcherapi.com/docs/v3/documentation/how-to/paginate-large-datasets).
     /// </summary>
+    [JsonIgnore]
     public int? Page { get; set; }
 
     /// <summary>
     /// The number of articles to return per page.
     /// </summary>
+    [JsonIgnore]
     public int? PageSize { get; set; }
 
+    /// <summary>
+    /// If true, returns only articles/sources that comply with the publisher's robots.txt rules. If false, returns only articles/sources that do not comply with robots.txt rules. If omitted, returns all articles/sources regardless of compliance status.
+    /// </summary>
+    [JsonIgnore]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

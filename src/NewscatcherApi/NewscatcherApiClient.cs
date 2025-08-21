@@ -1,12 +1,10 @@
 using NewscatcherApi.Core;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
 public partial class NewscatcherApiClient
 {
-    private RawClient _client;
+    private readonly RawClient _client;
 
     public NewscatcherApiClient(string? apiKey = null, ClientOptions? clientOptions = null)
     {
@@ -17,7 +15,7 @@ public partial class NewscatcherApiClient
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "NewscatcherApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Newscatcher.Client/1.1.0" },
+                { "User-Agent", "Newscatcher.Client/1.2.0" },
             }
         );
         clientOptions ??= new ClientOptions();
@@ -31,6 +29,7 @@ public partial class NewscatcherApiClient
         _client = new RawClient(clientOptions);
         Search = new SearchClient(_client);
         Latestheadlines = new LatestheadlinesClient(_client);
+        BreakingNews = new BreakingNewsClient(_client);
         Authors = new AuthorsClient(_client);
         SearchLink = new SearchLinkClient(_client);
         Searchsimilar = new SearchsimilarClient(_client);
@@ -39,19 +38,21 @@ public partial class NewscatcherApiClient
         Subscription = new SubscriptionClient(_client);
     }
 
-    public SearchClient Search { get; init; }
+    public SearchClient Search { get; }
 
-    public LatestheadlinesClient Latestheadlines { get; init; }
+    public LatestheadlinesClient Latestheadlines { get; }
 
-    public AuthorsClient Authors { get; init; }
+    public BreakingNewsClient BreakingNews { get; }
 
-    public SearchLinkClient SearchLink { get; init; }
+    public AuthorsClient Authors { get; }
 
-    public SearchsimilarClient Searchsimilar { get; init; }
+    public SearchLinkClient SearchLink { get; }
 
-    public SourcesClient Sources { get; init; }
+    public SearchsimilarClient Searchsimilar { get; }
 
-    public AggregationClient Aggregation { get; init; }
+    public SourcesClient Sources { get; }
 
-    public SubscriptionClient Subscription { get; init; }
+    public AggregationClient Aggregation { get; }
+
+    public SubscriptionClient Subscription { get; }
 }

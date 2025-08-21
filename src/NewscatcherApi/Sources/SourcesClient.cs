@@ -3,8 +3,6 @@ using System.Text.Json;
 using System.Threading;
 using NewscatcherApi.Core;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
 public partial class SourcesClient
@@ -19,13 +17,11 @@ public partial class SourcesClient
     /// <summary>
     /// Retrieves a list of sources based on specified criteria such as language, country, rank, and more.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.Sources.GetAsync(
     ///     new SourcesGetRequest { PredefinedSources = "top 100 US, top 5 GB", SourceUrl = "bbc.com" }
     /// );
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<SourcesResponseDto> GetAsync(
         SourcesGetRequest request,
         RequestOptions? options = null,
@@ -55,11 +51,13 @@ public partial class SourcesClient
         }
         if (request.IncludeAdditionalInfo != null)
         {
-            _query["include_additional_info"] = request.IncludeAdditionalInfo.ToString();
+            _query["include_additional_info"] = JsonUtils.Serialize(
+                request.IncludeAdditionalInfo.Value
+            );
         }
         if (request.IsNewsDomain != null)
         {
-            _query["is_news_domain"] = request.IsNewsDomain.ToString();
+            _query["is_news_domain"] = JsonUtils.Serialize(request.IsNewsDomain.Value);
         }
         if (request.NewsDomainType != null)
         {
@@ -71,26 +69,28 @@ public partial class SourcesClient
         }
         if (request.FromRank != null)
         {
-            _query["from_rank"] = request.FromRank.ToString();
+            _query["from_rank"] = request.FromRank.Value.ToString();
         }
         if (request.ToRank != null)
         {
-            _query["to_rank"] = request.ToRank.ToString();
+            _query["to_rank"] = request.ToRank.Value.ToString();
         }
-        var response = await _client.MakeRequestAsync(
-            new RawClient.JsonApiRequest
-            {
-                BaseUrl = _client.Options.BaseUrl,
-                Method = HttpMethod.Get,
-                Path = "api/sources",
-                Query = _query,
-                Options = options,
-            },
-            cancellationToken
-        );
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
+        var response = await _client
+            .SendRequestAsync(
+                new JsonRequest
+                {
+                    BaseUrl = _client.Options.BaseUrl,
+                    Method = HttpMethod.Get,
+                    Path = "api/sources",
+                    Query = _query,
+                    Options = options,
+                },
+                cancellationToken
+            )
+            .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<SourcesResponseDto>(responseBody)!;
@@ -101,42 +101,46 @@ public partial class SourcesClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
-                case 403:
-                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
-                case 408:
-                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
-                case 422:
-                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
-                case 429:
-                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
-                case 500:
-                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 403:
+                        throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 408:
+                        throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 422:
+                        throw new UnprocessableEntityError(
+                            JsonUtils.Deserialize<Error>(responseBody)
+                        );
+                    case 429:
+                        throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 500:
+                        throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new NewscatcherApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new NewscatcherApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 
     /// <summary>
     /// Retrieves the list of sources available in the database. You can filter the sources by language, country, and more.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.Sources.PostAsync(
     ///     new SourcesPostRequest
     ///     {
@@ -147,29 +151,30 @@ public partial class SourcesClient
     ///         NewsType = "General News Outlets",
     ///     }
     /// );
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<SourcesResponseDto> PostAsync(
         SourcesPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var response = await _client.MakeRequestAsync(
-            new RawClient.JsonApiRequest
-            {
-                BaseUrl = _client.Options.BaseUrl,
-                Method = HttpMethod.Post,
-                Path = "api/sources",
-                Body = request,
-                ContentType = "application/json",
-                Options = options,
-            },
-            cancellationToken
-        );
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
+        var response = await _client
+            .SendRequestAsync(
+                new JsonRequest
+                {
+                    BaseUrl = _client.Options.BaseUrl,
+                    Method = HttpMethod.Post,
+                    Path = "api/sources",
+                    Body = request,
+                    ContentType = "application/json",
+                    Options = options,
+                },
+                cancellationToken
+            )
+            .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<SourcesResponseDto>(responseBody)!;
@@ -180,34 +185,39 @@ public partial class SourcesClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
-                case 403:
-                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
-                case 408:
-                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
-                case 422:
-                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
-                case 429:
-                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
-                case 500:
-                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 403:
+                        throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 408:
+                        throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 422:
+                        throw new UnprocessableEntityError(
+                            JsonUtils.Deserialize<Error>(responseBody)
+                        );
+                    case 429:
+                        throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 500:
+                        throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new NewscatcherApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new NewscatcherApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 }

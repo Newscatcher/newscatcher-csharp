@@ -2,10 +2,9 @@ using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record SearchUrlPostRequest
 {
     [JsonPropertyName("ids")]
@@ -35,7 +34,7 @@ public record SearchUrlPostRequest
     /// - YYYY-MM-dd: `2024-07-01`
     /// - YYYY/mm/dd HH:MM:SS: `2024/07/01 00:00:00`
     /// - YYYY/mm/dd: `2024/07/01`
-    /// - English phrases: `1 day ago`, `today`
+    /// - English phrases: `1 day ago`, `now`
     /// </summary>
     [JsonPropertyName("to_")]
     public OneOf<DateTime, string>? To { get; set; }
@@ -46,6 +45,10 @@ public record SearchUrlPostRequest
     [JsonPropertyName("page_size")]
     public int? PageSize { get; set; }
 
+    [JsonPropertyName("robots_compliant")]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

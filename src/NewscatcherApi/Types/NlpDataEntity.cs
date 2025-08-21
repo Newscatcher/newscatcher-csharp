@@ -1,12 +1,21 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+/// <summary>
+/// Natural Language Processing data for the article.
+/// </summary>
+[Serializable]
 public record NlpDataEntity
 {
+    /// <summary>
+    /// A brief AI-generated summary of the article's English translation.
+    /// </summary>
+    [JsonPropertyName("summary_translated")]
+    public string? SummaryTranslated { get; set; }
+
     /// <summary>
     /// The themes or categories identified in the article.
     /// </summary>
@@ -55,23 +64,64 @@ public record NlpDataEntity
     public IEnumerable<NamedEntityListItem>? NerLoc { get; set; }
 
     /// <summary>
+    /// Named Entity Recognition for person entities (individuals' names) extracted from the English translation of the article.
+    /// </summary>
+    [JsonPropertyName("translation_ner_PER")]
+    public IEnumerable<NamedEntityListItem>? TranslationNerPer { get; set; }
+
+    /// <summary>
+    /// Named Entity Recognition for organization entities (company names, institutions) extracted from the English translation of the article.
+    /// </summary>
+    [JsonPropertyName("translation_ner_ORG")]
+    public IEnumerable<NamedEntityListItem>? TranslationNerOrg { get; set; }
+
+    /// <summary>
+    /// Named Entity Recognition for miscellaneous entities (events, nationalities, products) extracted from the English translation of the article.
+    /// </summary>
+    [JsonPropertyName("translation_ner_MISC")]
+    public IEnumerable<NamedEntityListItem>? TranslationNerMisc { get; set; }
+
+    /// <summary>
+    /// Named Entity Recognition for location entities (cities, countries, geographic features) extracted from the English translation of the article.
+    /// </summary>
+    [JsonPropertyName("translation_ner_LOC")]
+    public IEnumerable<NamedEntityListItem>? TranslationNerLoc { get; set; }
+
+    /// <summary>
     /// IPTC media topic taxonomy paths identified in the article content. Each path represents a hierarchical category following the IPTC standard.
+    ///
+    /// **Note**: The `iptc_tags_name` field is only available in the `v3_nlp_iptc_tags` subscription plan.
     /// </summary>
     [JsonPropertyName("iptc_tags_name")]
     public IEnumerable<string>? IptcTagsName { get; set; }
 
     /// <summary>
     /// IPTC media topic numeric codes identified in the article content. These codes correspond to the standardized IPTC media topic taxonomy.
+    ///
+    /// **Note**: The `iptc_tags_id` field is only available in the `v3_nlp_iptc_tags` subscription plan.
     /// </summary>
     [JsonPropertyName("iptc_tags_id")]
     public IEnumerable<string>? IptcTagsId { get; set; }
 
     /// <summary>
     /// IAB content taxonomy paths identified in the article content. Each path represents a hierarchical category following the IAB content standard.
+    ///
+    /// **Note**: The `iab_tags_name` field is only available in the `v3_nlp_iptc_tags` subscription plan.
     /// </summary>
     [JsonPropertyName("iab_tags_name")]
     public IEnumerable<string>? IabTagsName { get; set; }
 
+    /// <summary>
+    /// Additional properties received from the response, if any.
+    /// </summary>
+    /// <remarks>
+    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
+    /// </remarks>
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
+        new Dictionary<string, JsonElement>();
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

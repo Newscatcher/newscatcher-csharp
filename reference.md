@@ -31,9 +31,13 @@ await client.Search.GetAsync(
     new SearchGetRequest
     {
         Q = "technology AND (Apple OR Microsoft) NOT Google",
+        SearchIn = "title_content, title_content_translated",
+        IncludeTranslationFields = true,
         PredefinedSources = "top 100 US, top 5 GB",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        IncludeNlpData = true,
+        HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
         IptcTags = "20000199,20000209",
@@ -166,6 +170,9 @@ await client.Latestheadlines.GetAsync(
     new LatestHeadlinesGetRequest
     {
         PredefinedSources = "top 100 US, top 5 GB",
+        IncludeTranslationFields = true,
+        IncludeNlpData = true,
+        HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
         IptcTags = "20000199,20000209",
@@ -263,6 +270,133 @@ await client.Latestheadlines.PostAsync(
 </dl>
 </details>
 
+## Breaking News
+<details><summary><code>client.BreakingNews.<a href="/src/NewscatcherApi/BreakingNews/BreakingNewsClient.cs">BreakingNewsGetAsync</a>(BreakingNewsGetRequest { ... }) -> BreakingNewsResponseDto</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves breaking news articles and sorts them based on specified criteria.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```csharp
+await client.BreakingNews.BreakingNewsGetAsync(
+    new BreakingNewsGetRequest
+    {
+        TopNArticles = 5,
+        IncludeTranslationFields = true,
+        IncludeNlpData = true,
+        HasNlp = true,
+        Theme = "Business,Finance",
+        NotTheme = "Crime",
+    }
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `BreakingNewsGetRequest` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.BreakingNews.<a href="/src/NewscatcherApi/BreakingNews/BreakingNewsClient.cs">BreakingNewsPostAsync</a>(BreakingNewsPostRequest { ... }) -> BreakingNewsResponseDto</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieves breaking news articles and sorts them based on specified criteria.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```csharp
+await client.BreakingNews.BreakingNewsPostAsync(
+    new BreakingNewsPostRequest
+    {
+        SortBy = SortBy.Relevancy,
+        Page = 1,
+        PageSize = 100,
+        IncludeNlpData = true,
+    }
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `BreakingNewsPostRequest` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Authors
 <details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">GetAsync</a>(AuthorsGetRequest { ... }) -> OneOf<SearchResponseDto, FailedAuthorsResponseDto></code></summary>
 <dl>
@@ -298,6 +432,9 @@ await client.Authors.GetAsync(
         PredefinedSources = "top 100 US, top 5 GB",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        IncludeTranslationFields = true,
+        IncludeNlpData = true,
+        HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
         NerName = "Tesla",
@@ -558,10 +695,14 @@ await client.Searchsimilar.GetAsync(
     new SearchSimilarGetRequest
     {
         Q = "technology AND (Apple OR Microsoft) NOT Google",
+        SearchIn = "title_content, title_content_translated",
+        IncludeTranslationFields = true,
         SimilarDocumentsFields = "title,summary",
         PredefinedSources = "top 100 US, top 5 GB",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        IncludeNlpData = true,
+        HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
         NerName = "Tesla",
@@ -809,9 +950,12 @@ await client.Aggregation.GetAsync(
     new AggregationGetRequest
     {
         Q = "technology AND (Apple OR Microsoft) NOT Google",
+        SearchIn = "title_content, title_content_translated",
         PredefinedSources = "top 100 US, top 5 GB",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        IncludeNlpData = true,
+        HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
         IptcTags = "20000199,20000209",
@@ -875,10 +1019,10 @@ await client.Aggregation.PostAsync(
     new AggregationPostRequest
     {
         Q = "renewable energy",
+        AggregationBy = AggregationBy.Day,
         PredefinedSources = "top 50 US",
         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-        AggregationBy = AggregationBy.Day,
     }
 );
 ```

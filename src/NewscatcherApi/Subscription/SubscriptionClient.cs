@@ -3,8 +3,6 @@ using System.Text.Json;
 using System.Threading;
 using NewscatcherApi.Core;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
 public partial class SubscriptionClient
@@ -19,29 +17,29 @@ public partial class SubscriptionClient
     /// <summary>
     /// Retrieves information about your subscription plan.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.Subscription.GetAsync();
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<SubscriptionResponseDto> GetAsync(
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var response = await _client.MakeRequestAsync(
-            new RawClient.JsonApiRequest
-            {
-                BaseUrl = _client.Options.BaseUrl,
-                Method = HttpMethod.Get,
-                Path = "api/subscription",
-                Options = options,
-            },
-            cancellationToken
-        );
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
+        var response = await _client
+            .SendRequestAsync(
+                new JsonRequest
+                {
+                    BaseUrl = _client.Options.BaseUrl,
+                    Method = HttpMethod.Get,
+                    Path = "api/subscription",
+                    Options = options,
+                },
+                cancellationToken
+            )
+            .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<SubscriptionResponseDto>(responseBody)!;
@@ -52,63 +50,68 @@ public partial class SubscriptionClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
-                case 403:
-                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
-                case 408:
-                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
-                case 422:
-                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
-                case 429:
-                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
-                case 500:
-                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 403:
+                        throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 408:
+                        throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 422:
+                        throw new UnprocessableEntityError(
+                            JsonUtils.Deserialize<Error>(responseBody)
+                        );
+                    case 429:
+                        throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 500:
+                        throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new NewscatcherApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new NewscatcherApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 
     /// <summary>
     /// Retrieves information about your subscription plan.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.Subscription.PostAsync();
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<SubscriptionResponseDto> PostAsync(
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var response = await _client.MakeRequestAsync(
-            new RawClient.JsonApiRequest
-            {
-                BaseUrl = _client.Options.BaseUrl,
-                Method = HttpMethod.Post,
-                Path = "api/subscription",
-                Options = options,
-            },
-            cancellationToken
-        );
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
+        var response = await _client
+            .SendRequestAsync(
+                new JsonRequest
+                {
+                    BaseUrl = _client.Options.BaseUrl,
+                    Method = HttpMethod.Post,
+                    Path = "api/subscription",
+                    Options = options,
+                },
+                cancellationToken
+            )
+            .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<SubscriptionResponseDto>(responseBody)!;
@@ -119,34 +122,39 @@ public partial class SubscriptionClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
-                case 403:
-                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
-                case 408:
-                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
-                case 422:
-                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
-                case 429:
-                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
-                case 500:
-                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 403:
+                        throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 408:
+                        throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 422:
+                        throw new UnprocessableEntityError(
+                            JsonUtils.Deserialize<Error>(responseBody)
+                        );
+                    case 429:
+                        throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 500:
+                        throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new NewscatcherApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new NewscatcherApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 }

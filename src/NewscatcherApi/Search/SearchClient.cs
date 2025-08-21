@@ -4,8 +4,6 @@ using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
 public partial class SearchClient
@@ -20,15 +18,18 @@ public partial class SearchClient
     /// <summary>
     /// Searches for articles based on specified criteria such as keyword, language, country, source, and more.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.Search.GetAsync(
     ///     new SearchGetRequest
     ///     {
     ///         Q = "technology AND (Apple OR Microsoft) NOT Google",
+    ///         SearchIn = "title_content, title_content_translated",
+    ///         IncludeTranslationFields = true,
     ///         PredefinedSources = "top 100 US, top 5 GB",
     ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
     ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         IncludeNlpData = true,
+    ///         HasNlp = true,
     ///         Theme = "Business,Finance",
     ///         NotTheme = "Crime",
     ///         IptcTags = "20000199,20000209",
@@ -38,8 +39,7 @@ public partial class SearchClient
     ///         CustomTags = "Tag1,Tag2,Tag3",
     ///     }
     /// );
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<OneOf<SearchResponseDto, ClusteredSearchResponseDto>> GetAsync(
         SearchGetRequest request,
         RequestOptions? options = null,
@@ -51,6 +51,12 @@ public partial class SearchClient
         if (request.SearchIn != null)
         {
             _query["search_in"] = request.SearchIn;
+        }
+        if (request.IncludeTranslationFields != null)
+        {
+            _query["include_translation_fields"] = JsonUtils.Serialize(
+                request.IncludeTranslationFields.Value
+            );
         }
         if (request.PredefinedSources != null)
         {
@@ -102,7 +108,7 @@ public partial class SearchClient
         }
         if (request.ByParseDate != null)
         {
-            _query["by_parse_date"] = request.ByParseDate.ToString();
+            _query["by_parse_date"] = JsonUtils.Serialize(request.ByParseDate.Value);
         }
         if (request.SortBy != null)
         {
@@ -110,27 +116,27 @@ public partial class SearchClient
         }
         if (request.RankedOnly != null)
         {
-            _query["ranked_only"] = request.RankedOnly.ToString();
+            _query["ranked_only"] = JsonUtils.Serialize(request.RankedOnly.Value);
         }
         if (request.FromRank != null)
         {
-            _query["from_rank"] = request.FromRank.ToString();
+            _query["from_rank"] = request.FromRank.Value.ToString();
         }
         if (request.ToRank != null)
         {
-            _query["to_rank"] = request.ToRank.ToString();
+            _query["to_rank"] = request.ToRank.Value.ToString();
         }
         if (request.IsHeadline != null)
         {
-            _query["is_headline"] = request.IsHeadline.ToString();
+            _query["is_headline"] = JsonUtils.Serialize(request.IsHeadline.Value);
         }
         if (request.IsOpinion != null)
         {
-            _query["is_opinion"] = request.IsOpinion.ToString();
+            _query["is_opinion"] = JsonUtils.Serialize(request.IsOpinion.Value);
         }
         if (request.IsPaidContent != null)
         {
-            _query["is_paid_content"] = request.IsPaidContent.ToString();
+            _query["is_paid_content"] = JsonUtils.Serialize(request.IsPaidContent.Value);
         }
         if (request.ParentUrl != null)
         {
@@ -146,11 +152,13 @@ public partial class SearchClient
         }
         if (request.AdditionalDomainInfo != null)
         {
-            _query["additional_domain_info"] = request.AdditionalDomainInfo.ToString();
+            _query["additional_domain_info"] = JsonUtils.Serialize(
+                request.AdditionalDomainInfo.Value
+            );
         }
         if (request.IsNewsDomain != null)
         {
-            _query["is_news_domain"] = request.IsNewsDomain.ToString();
+            _query["is_news_domain"] = JsonUtils.Serialize(request.IsNewsDomain.Value);
         }
         if (request.NewsDomainType != null)
         {
@@ -162,23 +170,23 @@ public partial class SearchClient
         }
         if (request.WordCountMin != null)
         {
-            _query["word_count_min"] = request.WordCountMin.ToString();
+            _query["word_count_min"] = request.WordCountMin.Value.ToString();
         }
         if (request.WordCountMax != null)
         {
-            _query["word_count_max"] = request.WordCountMax.ToString();
+            _query["word_count_max"] = request.WordCountMax.Value.ToString();
         }
         if (request.Page != null)
         {
-            _query["page"] = request.Page.ToString();
+            _query["page"] = request.Page.Value.ToString();
         }
         if (request.PageSize != null)
         {
-            _query["page_size"] = request.PageSize.ToString();
+            _query["page_size"] = request.PageSize.Value.ToString();
         }
         if (request.ClusteringEnabled != null)
         {
-            _query["clustering_enabled"] = request.ClusteringEnabled.ToString();
+            _query["clustering_enabled"] = JsonUtils.Serialize(request.ClusteringEnabled.Value);
         }
         if (request.ClusteringVariable != null)
         {
@@ -186,15 +194,15 @@ public partial class SearchClient
         }
         if (request.ClusteringThreshold != null)
         {
-            _query["clustering_threshold"] = request.ClusteringThreshold.ToString();
+            _query["clustering_threshold"] = request.ClusteringThreshold.Value.ToString();
         }
         if (request.IncludeNlpData != null)
         {
-            _query["include_nlp_data"] = request.IncludeNlpData.ToString();
+            _query["include_nlp_data"] = JsonUtils.Serialize(request.IncludeNlpData.Value);
         }
         if (request.HasNlp != null)
         {
-            _query["has_nlp"] = request.HasNlp.ToString();
+            _query["has_nlp"] = JsonUtils.Serialize(request.HasNlp.Value);
         }
         if (request.Theme != null)
         {
@@ -222,19 +230,19 @@ public partial class SearchClient
         }
         if (request.TitleSentimentMin != null)
         {
-            _query["title_sentiment_min"] = request.TitleSentimentMin.ToString();
+            _query["title_sentiment_min"] = request.TitleSentimentMin.Value.ToString();
         }
         if (request.TitleSentimentMax != null)
         {
-            _query["title_sentiment_max"] = request.TitleSentimentMax.ToString();
+            _query["title_sentiment_max"] = request.TitleSentimentMax.Value.ToString();
         }
         if (request.ContentSentimentMin != null)
         {
-            _query["content_sentiment_min"] = request.ContentSentimentMin.ToString();
+            _query["content_sentiment_min"] = request.ContentSentimentMin.Value.ToString();
         }
         if (request.ContentSentimentMax != null)
         {
-            _query["content_sentiment_max"] = request.ContentSentimentMax.ToString();
+            _query["content_sentiment_max"] = request.ContentSentimentMax.Value.ToString();
         }
         if (request.IptcTags != null)
         {
@@ -258,22 +266,28 @@ public partial class SearchClient
         }
         if (request.ExcludeDuplicates != null)
         {
-            _query["exclude_duplicates"] = request.ExcludeDuplicates.ToString();
+            _query["exclude_duplicates"] = JsonUtils.Serialize(request.ExcludeDuplicates.Value);
         }
-        var response = await _client.MakeRequestAsync(
-            new RawClient.JsonApiRequest
-            {
-                BaseUrl = _client.Options.BaseUrl,
-                Method = HttpMethod.Get,
-                Path = "api/search",
-                Query = _query,
-                Options = options,
-            },
-            cancellationToken
-        );
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
+        if (request.RobotsCompliant != null)
+        {
+            _query["robots_compliant"] = JsonUtils.Serialize(request.RobotsCompliant.Value);
+        }
+        var response = await _client
+            .SendRequestAsync(
+                new JsonRequest
+                {
+                    BaseUrl = _client.Options.BaseUrl,
+                    Method = HttpMethod.Get,
+                    Path = "api/search",
+                    Query = _query,
+                    Options = options,
+                },
+                cancellationToken
+            )
+            .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<OneOf<SearchResponseDto, ClusteredSearchResponseDto>>(
@@ -286,42 +300,46 @@ public partial class SearchClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
-                case 403:
-                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
-                case 408:
-                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
-                case 422:
-                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
-                case 429:
-                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
-                case 500:
-                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 403:
+                        throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 408:
+                        throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 422:
+                        throw new UnprocessableEntityError(
+                            JsonUtils.Deserialize<Error>(responseBody)
+                        );
+                    case 429:
+                        throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 500:
+                        throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new NewscatcherApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new NewscatcherApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 
     /// <summary>
     /// Searches for articles based on specified criteria such as keyword, language, country, source, and more.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.Search.PostAsync(
     ///     new SearchPostRequest
     ///     {
@@ -334,29 +352,30 @@ public partial class SearchClient
     ///         IsNewsDomain = true,
     ///     }
     /// );
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<OneOf<SearchResponseDto, ClusteredSearchResponseDto>> PostAsync(
         SearchPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var response = await _client.MakeRequestAsync(
-            new RawClient.JsonApiRequest
-            {
-                BaseUrl = _client.Options.BaseUrl,
-                Method = HttpMethod.Post,
-                Path = "api/search",
-                Body = request,
-                ContentType = "application/json",
-                Options = options,
-            },
-            cancellationToken
-        );
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
+        var response = await _client
+            .SendRequestAsync(
+                new JsonRequest
+                {
+                    BaseUrl = _client.Options.BaseUrl,
+                    Method = HttpMethod.Post,
+                    Path = "api/search",
+                    Body = request,
+                    ContentType = "application/json",
+                    Options = options,
+                },
+                cancellationToken
+            )
+            .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<OneOf<SearchResponseDto, ClusteredSearchResponseDto>>(
@@ -369,34 +388,39 @@ public partial class SearchClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
-                case 403:
-                    throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
-                case 408:
-                    throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
-                case 422:
-                    throw new UnprocessableEntityError(JsonUtils.Deserialize<Error>(responseBody));
-                case 429:
-                    throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
-                case 500:
-                    throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 403:
+                        throw new ForbiddenError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 408:
+                        throw new RequestTimeoutError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 422:
+                        throw new UnprocessableEntityError(
+                            JsonUtils.Deserialize<Error>(responseBody)
+                        );
+                    case 429:
+                        throw new TooManyRequestsError(JsonUtils.Deserialize<Error>(responseBody));
+                    case 500:
+                        throw new InternalServerError(JsonUtils.Deserialize<string>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new NewscatcherApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new NewscatcherApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 }

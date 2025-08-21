@@ -2,14 +2,16 @@ using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record AggregationPostRequest
 {
     [JsonPropertyName("q")]
     public required string Q { get; set; }
+
+    [JsonPropertyName("aggregation_by")]
+    public AggregationBy? AggregationBy { get; set; }
 
     [JsonPropertyName("search_in")]
     public string? SearchIn { get; set; }
@@ -105,16 +107,16 @@ public record AggregationPostRequest
     public OneOf<string, IEnumerable<string>>? NotTheme { get; set; }
 
     [JsonPropertyName("ORG_entity_name")]
-    public OneOf<string, IEnumerable<string>>? OrgEntityName { get; set; }
+    public string? OrgEntityName { get; set; }
 
     [JsonPropertyName("PER_entity_name")]
-    public OneOf<string, IEnumerable<string>>? PerEntityName { get; set; }
+    public string? PerEntityName { get; set; }
 
     [JsonPropertyName("LOC_entity_name")]
-    public OneOf<string, IEnumerable<string>>? LocEntityName { get; set; }
+    public string? LocEntityName { get; set; }
 
     [JsonPropertyName("MISC_entity_name")]
-    public OneOf<string, IEnumerable<string>>? MiscEntityName { get; set; }
+    public string? MiscEntityName { get; set; }
 
     [JsonPropertyName("title_sentiment_min")]
     public float? TitleSentimentMin { get; set; }
@@ -125,8 +127,8 @@ public record AggregationPostRequest
     [JsonPropertyName("content_sentiment_min")]
     public float? ContentSentimentMin { get; set; }
 
-    [JsonPropertyName("content_sentient_max")]
-    public float? ContentSentientMax { get; set; }
+    [JsonPropertyName("content_sentiment_max")]
+    public float? ContentSentimentMax { get; set; }
 
     [JsonPropertyName("iptc_tags")]
     public OneOf<string, IEnumerable<string>>? IptcTags { get; set; }
@@ -134,9 +136,10 @@ public record AggregationPostRequest
     [JsonPropertyName("not_iptc_tags")]
     public OneOf<string, IEnumerable<string>>? NotIptcTags { get; set; }
 
-    [JsonPropertyName("aggregation_by")]
-    public AggregationBy? AggregationBy { get; set; }
+    [JsonPropertyName("robots_compliant")]
+    public bool? RobotsCompliant { get; set; }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

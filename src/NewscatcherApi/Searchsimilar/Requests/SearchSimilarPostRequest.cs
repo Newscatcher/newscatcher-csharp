@@ -2,10 +2,9 @@ using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record SearchSimilarPostRequest
 {
     [JsonPropertyName("q")]
@@ -13,6 +12,9 @@ public record SearchSimilarPostRequest
 
     [JsonPropertyName("search_in")]
     public string? SearchIn { get; set; }
+
+    [JsonPropertyName("include_translation_fields")]
+    public bool? IncludeTranslationFields { get; set; }
 
     [JsonPropertyName("include_similar_documents")]
     public bool? IncludeSimilarDocuments { get; set; }
@@ -134,6 +136,10 @@ public record SearchSimilarPostRequest
     [JsonPropertyName("custom_tags")]
     public OneOf<string, IEnumerable<string>>? CustomTags { get; set; }
 
+    [JsonPropertyName("robots_compliant")]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

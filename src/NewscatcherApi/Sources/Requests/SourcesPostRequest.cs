@@ -2,10 +2,9 @@ using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record SourcesPostRequest
 {
     [JsonPropertyName("lang")]
@@ -41,6 +40,7 @@ public record SourcesPostRequest
     [JsonPropertyName("to_rank")]
     public int? ToRank { get; set; }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

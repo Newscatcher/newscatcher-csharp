@@ -3,6 +3,7 @@ namespace NewscatcherApi;
 /// <summary>
 /// This exception type will be thrown for any non-2XX API responses.
 /// </summary>
+[Serializable]
 public class UnauthorizedError(Error body)
     : NewscatcherApiApiException("UnauthorizedError", 401, body)
 {
