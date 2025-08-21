@@ -1,14 +1,15 @@
+using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
-
-#nullable enable
 
 namespace NewscatcherApi;
 
+[Serializable]
 public record AuthorsGetRequest
 {
     /// <summary>
     /// The name of the author to search for. This parameter returns exact matches only.
     /// </summary>
+    [JsonIgnore]
     public required string AuthorName { get; set; }
 
     /// <summary>
@@ -16,6 +17,7 @@ public record AuthorsGetRequest
     ///
     /// Example: `"John Doe, Jane Doe"`
     /// </summary>
+    [JsonIgnore]
     public string? NotAuthorName { get; set; }
 
     /// <summary>
@@ -29,6 +31,7 @@ public record AuthorsGetRequest
     /// - `"top 50 US, top 20 GB"`
     /// - `"top 33 AT, top 50 IT"`
     /// </summary>
+    [JsonIgnore]
     public string? PredefinedSources { get; set; }
 
     /// <summary>
@@ -38,6 +41,7 @@ public record AuthorsGetRequest
     /// - `"nytimes.com"`
     /// - `"theguardian.com, finance.yahoo.com"`
     /// </summary>
+    [JsonIgnore]
     public string? Sources { get; set; }
 
     /// <summary>
@@ -45,6 +49,7 @@ public record AuthorsGetRequest
     ///
     /// Example: `"cnn.com, wsj.com"`
     /// </summary>
+    [JsonIgnore]
     public string? NotSources { get; set; }
 
     /// <summary>
@@ -54,6 +59,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [Enumerated parameters &gt; Language](/docs/v3/api-reference/overview/enumerated-parameters#language-lang-and-not-lang).
     /// </summary>
+    [JsonIgnore]
     public string? Lang { get; set; }
 
     /// <summary>
@@ -63,6 +69,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [Enumerated parameters &gt; Language](/docs/v3/api-reference/overview/enumerated-parameters#language-lang-and-not-lang).
     /// </summary>
+    [JsonIgnore]
     public string? NotLang { get; set; }
 
     /// <summary>
@@ -72,6 +79,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [Enumerated parameters &gt; Country](/docs/v3/api-reference/overview/enumerated-parameters#country-country-and-not-country).
     /// </summary>
+    [JsonIgnore]
     public string? Countries { get; set; }
 
     /// <summary>
@@ -81,6 +89,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [Enumerated parameters &gt; Country](/docs/v3/api-reference/overview/enumerated-parameters#country-country-and-not-country).
     /// </summary>
+    [JsonIgnore]
     public string? NotCountries { get; set; }
 
     /// <summary>
@@ -91,10 +100,11 @@ public record AuthorsGetRequest
     /// - YYYY-MM-dd: `2024-07-01`
     /// - YYYY/mm/dd HH:MM:SS: `2024/07/01 00:00:00`
     /// - YYYY/mm/dd: `2024/07/01`
-    /// - English phrases: `1 day ago`, `today`
+    /// - English phrases: `7 day ago`, `today`
     ///
     /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
     /// </summary>
+    [JsonIgnore]
     public DateTime? From { get; set; }
 
     /// <summary>
@@ -105,10 +115,11 @@ public record AuthorsGetRequest
     /// - YYYY-MM-dd: `2024-07-01`
     /// - YYYY/mm/dd HH:MM:SS: `2024/07/01 00:00:00`
     /// - YYYY/mm/dd: `2024/07/01`
-    /// - English phrases: `1 day ago`, `today`
+    /// - English phrases: `1 day ago`, `now`
     ///
     /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
     /// </summary>
+    [JsonIgnore]
     public DateTime? To { get; set; }
 
     /// <summary>
@@ -117,11 +128,13 @@ public record AuthorsGetRequest
     /// - `timezone unknown`: The day and time of an article is correctly identified without timezone.
     /// - `date`: Only the day is identified without an exact time.
     /// </summary>
+    [JsonIgnore]
     public AuthorsGetRequestPublishedDatePrecision? PublishedDatePrecision { get; set; }
 
     /// <summary>
     /// If true, the `from_` and `to_` parameters use article parse dates instead of published dates. Additionally, the `parse_date` variable is added to the output for each article object.
     /// </summary>
+    [JsonIgnore]
     public bool? ByParseDate { get; set; }
 
     /// <summary>
@@ -130,36 +143,43 @@ public record AuthorsGetRequest
     /// - `date`: The most recently published results first.
     /// - `rank`: The results from the highest-ranked sources first.
     /// </summary>
+    [JsonIgnore]
     public AuthorsGetRequestSortBy? SortBy { get; set; }
 
     /// <summary>
     /// If true, limits the search to sources ranked in the top 1 million online websites. If false, includes unranked sources which are assigned a rank of 999999.
     /// </summary>
+    [JsonIgnore]
     public bool? RankedOnly { get; set; }
 
     /// <summary>
     /// The lowest boundary of the rank of a news website to filter by. A lower rank indicates a more popular source.
     /// </summary>
+    [JsonIgnore]
     public int? FromRank { get; set; }
 
     /// <summary>
     /// The highest boundary of the rank of a news website to filter by. A lower rank indicates a more popular source.
     /// </summary>
+    [JsonIgnore]
     public int? ToRank { get; set; }
 
     /// <summary>
     /// If true, only returns articles that were posted on the home page of a given news domain.
     /// </summary>
+    [JsonIgnore]
     public bool? IsHeadline { get; set; }
 
     /// <summary>
     /// If true, returns only opinion pieces. If false, excludes opinion-based articles and returns news only.
     /// </summary>
+    [JsonIgnore]
     public bool? IsOpinion { get; set; }
 
     /// <summary>
     /// If false, returns only articles that have publicly available complete content. Some publishers partially block content, so this setting ensures that only full articles are retrieved.
     /// </summary>
+    [JsonIgnore]
     public bool? IsPaidContent { get; set; }
 
     /// <summary>
@@ -167,6 +187,7 @@ public record AuthorsGetRequest
     ///
     /// Example: `"wsj.com/politics, wsj.com/tech"`
     /// </summary>
+    [JsonIgnore]
     public string? ParentUrl { get; set; }
 
     /// <summary>
@@ -176,6 +197,7 @@ public record AuthorsGetRequest
     ///
     /// For more details, see [Search by URL](/docs/v3/documentation/how-to/search-by-url).
     /// </summary>
+    [JsonIgnore]
     public string? AllLinks { get; set; }
 
     /// <summary>
@@ -185,16 +207,19 @@ public record AuthorsGetRequest
     ///
     /// For more details, see [Search by URL](/docs/v3/documentation/how-to/search-by-url).
     /// </summary>
+    [JsonIgnore]
     public string? AllDomainLinks { get; set; }
 
     /// <summary>
     /// The minimum number of words an article must contain. To be used for avoiding articles with small content.
     /// </summary>
+    [JsonIgnore]
     public int? WordCountMin { get; set; }
 
     /// <summary>
     /// The maximum number of words an article can contain. To be used for avoiding articles with large content.
     /// </summary>
+    [JsonIgnore]
     public int? WordCountMax { get; set; }
 
     /// <summary>
@@ -202,37 +227,22 @@ public record AuthorsGetRequest
     ///
     /// For details, see [How to paginate large datasets](https://www.newscatcherapi.com/docs/v3/documentation/how-to/paginate-large-datasets).
     /// </summary>
+    [JsonIgnore]
     public int? Page { get; set; }
 
     /// <summary>
     /// The number of articles to return per page.
     /// </summary>
+    [JsonIgnore]
     public int? PageSize { get; set; }
 
-    /// <summary>
-    /// If true, includes an NLP layer with each article in the response. This layer provides enhanced information such as theme classification, article summary, sentiment analysis, tags, and named entity recognition.
-    ///
-    /// The NLP layer includes:
-    /// - Theme: General topic of the article.
-    /// - Summary: A concise overview of the article content.
-    /// - Sentiment: Separate scores for title and content (range: -1 to 1).
-    /// - Named entities: Identified persons (PER), organizations (ORG), locations (LOC), and miscellaneous entities (MISC).
-    /// - IPTC tags: Standardized news category tags.
-    /// - IAB tags: Content categories for digital advertising.
-    ///
-    /// **Note**: The `include_nlp_data` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
+    [JsonIgnore]
+    public bool? IncludeTranslationFields { get; set; }
+
+    [JsonIgnore]
     public bool? IncludeNlpData { get; set; }
 
-    /// <summary>
-    /// If true, filters the results to include only articles with an NLP layer. This allows you to focus on articles that have been processed with advanced NLP techniques.
-    ///
-    /// **Note**: The `has_nlp` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
+    [JsonIgnore]
     public bool? HasNlp { get; set; }
 
     /// <summary>
@@ -246,6 +256,7 @@ public record AuthorsGetRequest
     ///
     /// Available options: `Business`, `Economics`, `Entertainment`, `Finance`, `Health`, `Politics`, `Science`, `Sports`, `Tech`, `Crime`, `Financial Crime`, `Lifestyle`, `Automotive`, `Travel`, `Weather`, `General`.
     /// </summary>
+    [JsonIgnore]
     public string? Theme { get; set; }
 
     /// <summary>
@@ -257,6 +268,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
     /// </summary>
+    [JsonIgnore]
     public string? NotTheme { get; set; }
 
     /// <summary>
@@ -264,6 +276,7 @@ public record AuthorsGetRequest
     ///
     /// Example: `"Tesla, Amazon"`
     /// </summary>
+    [JsonIgnore]
     public string? NerName { get; set; }
 
     /// <summary>
@@ -278,6 +291,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
     /// </summary>
+    [JsonIgnore]
     public float? TitleSentimentMin { get; set; }
 
     /// <summary>
@@ -292,6 +306,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
     /// </summary>
+    [JsonIgnore]
     public float? TitleSentimentMax { get; set; }
 
     /// <summary>
@@ -306,6 +321,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
     /// </summary>
+    [JsonIgnore]
     public float? ContentSentimentMin { get; set; }
 
     /// <summary>
@@ -320,6 +336,7 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
     /// </summary>
+    [JsonIgnore]
     public float? ContentSentimentMax { get; set; }
 
     /// <summary>
@@ -327,10 +344,11 @@ public record AuthorsGetRequest
     ///
     /// Example: `"20000199, 20000209"`
     ///
-    /// **Note**: The `iptc_tags` parameter is only available if tags are included in your subscription plan.
+    /// **Note**: The `iptc_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
     /// To learn more, see [IPTC Media Topic NewsCodes](https://www.iptc.org/std/NewsCodes/treeview/mediatopic/mediatopic-en-GB.html).
     /// </summary>
+    [JsonIgnore]
     public string? IptcTags { get; set; }
 
     /// <summary>
@@ -338,10 +356,11 @@ public record AuthorsGetRequest
     ///
     /// Example: `"20000205, 20000209"`
     ///
-    /// **Note**: The `not_iptc_tags` parameter is only available if tags are included in your subscription plan.
+    /// **Note**: The `not_iptc_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
     /// To learn more, see [IPTC Media Topic NewsCodes](https://www.iptc.org/std/NewsCodes/treeview/mediatopic/mediatopic-en-GB.html).
     /// </summary>
+    [JsonIgnore]
     public string? NotIptcTags { get; set; }
 
     /// <summary>
@@ -349,10 +368,11 @@ public record AuthorsGetRequest
     ///
     /// Example: `"Business, Events"`
     ///
-    /// **Note**: The `iab_tags` parameter is only available if tags are included in your subscription plan.
+    /// **Note**: The `iab_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
     /// To learn more, see the [IAB Content taxonomy](https://iabtechlab.com/standards/content-taxonomy/).
     /// </summary>
+    [JsonIgnore]
     public string? IabTags { get; set; }
 
     /// <summary>
@@ -360,10 +380,11 @@ public record AuthorsGetRequest
     ///
     /// Example: `"Agriculture, Metals"`
     ///
-    /// **Note**: The `not_iab_tags` parameter is only available if tags are included in your subscription plan.
+    /// **Note**: The `not_iab_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
     /// To learn more, see the [IAB Content taxonomy](https://iabtechlab.com/standards/content-taxonomy/).
     /// </summary>
+    [JsonIgnore]
     public string? NotIabTags { get; set; }
 
     /// <summary>
@@ -375,8 +396,16 @@ public record AuthorsGetRequest
     ///
     /// To learn more, see the [Custom tags](/docs/v3/documentation/guides-and-concepts/custom-tags).
     /// </summary>
+    [JsonIgnore]
     public string? CustomTags { get; set; }
 
+    /// <summary>
+    /// If true, returns only articles/sources that comply with the publisher's robots.txt rules. If false, returns only articles/sources that do not comply with robots.txt rules. If omitted, returns all articles/sources regardless of compliance status.
+    /// </summary>
+    [JsonIgnore]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

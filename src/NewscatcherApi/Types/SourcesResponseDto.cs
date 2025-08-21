@@ -1,11 +1,16 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+/// <summary>
+/// The response model for a successful `Sources` request retrieving news sources matching the specified criteria. Response field behavior:
+/// - Required fields are guaranteed to be present and non-null.
+/// - Optional fields may be `null` or `undefined` if the data point is not presented or couldn't be extracted during processing.
+/// </summary>
+[Serializable]
 public record SourcesResponseDto
 {
     /// <summary>
@@ -27,6 +32,17 @@ public record SourcesResponseDto
     [JsonPropertyName("user_input")]
     public object UserInput { get; set; } = new Dictionary<string, object?>();
 
+    /// <summary>
+    /// Additional properties received from the response, if any.
+    /// </summary>
+    /// <remarks>
+    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
+    /// </remarks>
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
+        new Dictionary<string, JsonElement>();
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

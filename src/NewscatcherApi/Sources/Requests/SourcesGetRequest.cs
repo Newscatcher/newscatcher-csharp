@@ -1,9 +1,9 @@
+using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
-
-#nullable enable
 
 namespace NewscatcherApi;
 
+[Serializable]
 public record SourcesGetRequest
 {
     /// <summary>
@@ -13,6 +13,7 @@ public record SourcesGetRequest
     ///
     /// To learn more, see [Enumerated parameters &gt; Language](/docs/v3/api-reference/overview/enumerated-parameters#language-lang-and-not-lang).
     /// </summary>
+    [JsonIgnore]
     public string? Lang { get; set; }
 
     /// <summary>
@@ -22,6 +23,7 @@ public record SourcesGetRequest
     ///
     /// To learn more, see [Enumerated parameters &gt; Country](/docs/v3/api-reference/overview/enumerated-parameters#country-country-and-not-country).
     /// </summary>
+    [JsonIgnore]
     public string? Countries { get; set; }
 
     /// <summary>
@@ -35,6 +37,7 @@ public record SourcesGetRequest
     /// - `"top 50 US, top 20 GB"`
     /// - `"top 33 AT, top 50 IT"`
     /// </summary>
+    [JsonIgnore]
     public string? PredefinedSources { get; set; }
 
     /// <summary>
@@ -44,6 +47,7 @@ public record SourcesGetRequest
     ///
     /// **Note**: The search doesn't require an exact match and returns sources containing the specified terms in their names. You can use any word or phrase, like `"sport"` or `"new york times"`. For example, `"sport"` returns sources such as `"Motorsport"`, `"Dot Esport"`, and `"Tuttosport"`.
     /// </summary>
+    [JsonIgnore]
     public string? SourceName { get; set; }
 
     /// <summary>
@@ -52,6 +56,7 @@ public record SourcesGetRequest
     /// **Caution**:  When specifying the `source_url` parameter,
     /// you can only use `include_additional_info` as an extra parameter.
     /// </summary>
+    [JsonIgnore]
     public string? SourceUrl { get; set; }
 
     /// <summary>
@@ -63,11 +68,13 @@ public record SourcesGetRequest
     /// - `news_domain_type`: Type of news domain (e.g., "Original Content").
     /// - `news_type`: Category of news (e.g., "General News Outlets").
     /// </summary>
+    [JsonIgnore]
     public bool? IncludeAdditionalInfo { get; set; }
 
     /// <summary>
     /// If true, filters results to include only news domains.
     /// </summary>
+    [JsonIgnore]
     public bool? IsNewsDomain { get; set; }
 
     /// <summary>
@@ -78,6 +85,7 @@ public record SourcesGetRequest
     /// - `Republisher`: Sources that republish content from other sources.
     /// - `Other`: Sources that don't fit into main categories.
     /// </summary>
+    [JsonIgnore]
     public SourcesGetRequestNewsDomainType? NewsDomainType { get; set; }
 
     /// <summary>
@@ -87,18 +95,22 @@ public record SourcesGetRequest
     ///
     /// For a complete list of available news types, see [Enumerated parameters &gt; News type](/docs/v3/api-reference/overview/enumerated-parameters#news-type-news-type).
     /// </summary>
+    [JsonIgnore]
     public string? NewsType { get; set; }
 
     /// <summary>
     /// The lowest boundary of the rank of a news website to filter by. A lower rank indicates a more popular source.
     /// </summary>
+    [JsonIgnore]
     public int? FromRank { get; set; }
 
     /// <summary>
     /// The highest boundary of the rank of a news website to filter by. A lower rank indicates a more popular source.
     /// </summary>
+    [JsonIgnore]
     public int? ToRank { get; set; }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

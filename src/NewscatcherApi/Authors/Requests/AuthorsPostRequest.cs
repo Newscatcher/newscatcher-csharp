@@ -2,10 +2,9 @@ using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record AuthorsPostRequest
 {
     [JsonPropertyName("author_name")]
@@ -89,6 +88,9 @@ public record AuthorsPostRequest
     [JsonPropertyName("page_size")]
     public int? PageSize { get; set; }
 
+    [JsonPropertyName("include_translation_fields")]
+    public bool? IncludeTranslationFields { get; set; }
+
     [JsonPropertyName("include_nlp_data")]
     public bool? IncludeNlpData { get; set; }
 
@@ -131,6 +133,10 @@ public record AuthorsPostRequest
     [JsonPropertyName("custom_tags")]
     public OneOf<string, IEnumerable<string>>? CustomTags { get; set; }
 
+    [JsonPropertyName("robots_compliant")]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

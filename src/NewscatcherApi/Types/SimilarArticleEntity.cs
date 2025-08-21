@@ -1,11 +1,16 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+/// <summary>
+/// The data model for an article result in the `Search similar` articles request. Response field behavior:
+/// - Required fields are guaranteed to be present and non-null.
+/// - Optional fields may be `null` or `undefined` if the data point is not presented or couldn't be extracted during processing.
+/// </summary>
+[Serializable]
 public record SimilarArticleEntity
 {
     /// <summary>
@@ -153,6 +158,18 @@ public record SimilarArticleEntity
     public required string Content { get; set; }
 
     /// <summary>
+    /// English translation of the article title. Available when using the `search_in` parameter with the `title_translated` option or by setting the `include_translation_fields` parameter to `true`.
+    /// </summary>
+    [JsonPropertyName("title_translated_en")]
+    public string? TitleTranslatedEn { get; set; }
+
+    /// <summary>
+    /// English translation of the article content. Available when using the `search_in` parameter with the `content_translated` option or by setting the `include_translation_fields` parameter to `true`.
+    /// </summary>
+    [JsonPropertyName("content_translated_en")]
+    public string? ContentTranslatedEn { get; set; }
+
+    /// <summary>
     /// The word count of the article.
     /// </summary>
     [JsonPropertyName("word_count")]
@@ -198,6 +215,12 @@ public record SimilarArticleEntity
     public required double Score { get; set; }
 
     /// <summary>
+    /// True if the article content can be safely accessed according to the publisher's robots.txt rules; false otherwise.
+    /// </summary>
+    [JsonPropertyName("robots_compliant")]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <summary>
     /// An object that contains custom tags associated with an article, where each key is a taxonomy name, and the value is an array of tags.
     /// </summary>
     [JsonPropertyName("custom_tags")]
@@ -206,6 +229,17 @@ public record SimilarArticleEntity
     [JsonPropertyName("additional_domain_info")]
     public AdditionalDomainInfoEntity? AdditionalDomainInfo { get; set; }
 
+    /// <summary>
+    /// Additional properties received from the response, if any.
+    /// </summary>
+    /// <remarks>
+    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
+    /// </remarks>
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
+        new Dictionary<string, JsonElement>();
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

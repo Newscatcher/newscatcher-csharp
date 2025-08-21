@@ -2,8 +2,6 @@ using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
 [JsonConverter(typeof(EnumSerializer<AggregationBy>))]
@@ -14,4 +12,7 @@ public enum AggregationBy
 
     [EnumMember(Value = "hour")]
     Hour,
+
+    [EnumMember(Value = "month")]
+    Month,
 }

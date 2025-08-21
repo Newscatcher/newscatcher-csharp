@@ -2,10 +2,9 @@ using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+[Serializable]
 public record LatestHeadlinesPostRequest
 {
     [JsonPropertyName("when")]
@@ -80,6 +79,9 @@ public record LatestHeadlinesPostRequest
     [JsonPropertyName("clustering_threshold")]
     public float? ClusteringThreshold { get; set; }
 
+    [JsonPropertyName("include_translation_fields")]
+    public bool? IncludeTranslationFields { get; set; }
+
     [JsonPropertyName("include_nlp_data")]
     public bool? IncludeNlpData { get; set; }
 
@@ -93,16 +95,16 @@ public record LatestHeadlinesPostRequest
     public OneOf<string, IEnumerable<string>>? NotTheme { get; set; }
 
     [JsonPropertyName("ORG_entity_name")]
-    public OneOf<string, IEnumerable<string>>? OrgEntityName { get; set; }
+    public string? OrgEntityName { get; set; }
 
     [JsonPropertyName("PER_entity_name")]
-    public OneOf<string, IEnumerable<string>>? PerEntityName { get; set; }
+    public string? PerEntityName { get; set; }
 
     [JsonPropertyName("LOC_entity_name")]
-    public OneOf<string, IEnumerable<string>>? LocEntityName { get; set; }
+    public string? LocEntityName { get; set; }
 
     [JsonPropertyName("MISC_entity_name")]
-    public OneOf<string, IEnumerable<string>>? MiscEntityName { get; set; }
+    public string? MiscEntityName { get; set; }
 
     [JsonPropertyName("title_sentiment_min")]
     public float? TitleSentimentMin { get; set; }
@@ -131,6 +133,10 @@ public record LatestHeadlinesPostRequest
     [JsonPropertyName("custom_tags")]
     public OneOf<string, IEnumerable<string>>? CustomTags { get; set; }
 
+    [JsonPropertyName("robots_compliant")]
+    public bool? RobotsCompliant { get; set; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

@@ -1,10 +1,13 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
-#nullable enable
-
 namespace NewscatcherApi;
 
+/// <summary>
+/// The data model for additional information about a news source.
+/// </summary>
+[Serializable]
 public record AdditionalSourceInfo
 {
     /// <summary>
@@ -43,6 +46,17 @@ public record AdditionalSourceInfo
     [JsonPropertyName("news_type")]
     public string? NewsType { get; set; }
 
+    /// <summary>
+    /// Additional properties received from the response, if any.
+    /// </summary>
+    /// <remarks>
+    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
+    /// </remarks>
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
+        new Dictionary<string, JsonElement>();
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);
