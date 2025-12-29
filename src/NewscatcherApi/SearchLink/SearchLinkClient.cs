@@ -1,6 +1,4 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -21,6 +19,9 @@ public partial class SearchLinkClient
     /// await client.SearchLink.SearchUrlGetAsync(
     ///     new SearchUrlGetRequest
     ///     {
+    ///         Ids = "5f8d0d55b6e45e00179c6e7e",
+    ///         Links = "https://nytimes.com/article1",
+    ///         Source = "articles.id,articles.title,articles.link,articles.published_date",
     ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
     ///         To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
     ///     }
@@ -40,6 +41,10 @@ public partial class SearchLinkClient
         if (request.Links != null)
         {
             _query["links"] = request.Links;
+        }
+        if (request.Source != null)
+        {
+            _query["_source"] = request.Source;
         }
         if (request.From != null)
         {
@@ -130,16 +135,9 @@ public partial class SearchLinkClient
     /// await client.SearchLink.SearchUrlPostAsync(
     ///     new SearchUrlPostRequest
     ///     {
-    ///         Ids = new List&lt;string&gt;()
-    ///         {
-    ///             "8ea8a784568ffaa05cb6d1ab2d2e84dd",
-    ///             "0146a551ef05ab1c494a55e806e3ce64",
-    ///         },
-    ///         Links = new List&lt;string&gt;()
-    ///         {
-    ///             "https://www.nytimes.com/2024/08/30/technology/ai-chatbot-chatgpt-manipulation.html",
-    ///             "https://www.bbc.com/news/articles/c39k379grzlo",
-    ///         },
+    ///         Links =
+    ///             "https://www.reuters.com/business/energy/oil-prices-up-after-israeli-attacks-oversupply-caps-gains-2025-09-10/",
+    ///         Source = "articles.id,articles.title,articles.link,articles.canonical_url",
     ///     }
     /// );
     /// </code></example>

@@ -1,6 +1,4 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
@@ -23,9 +21,19 @@ public partial class AuthorsClient
     ///     new AuthorsGetRequest
     ///     {
     ///         AuthorName = "Jane Smith",
+    ///         NotAuthorName = "John Doe",
     ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         Sources = "nytimes.com",
+    ///         NotSources = "cnn.com",
+    ///         Lang = "en",
+    ///         NotLang = "fr",
+    ///         Countries = "US",
+    ///         NotCountries = "UK",
     ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
     ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         ParentUrl = "https://www.washingtonpost.com/politics",
+    ///         AllLinks = "https://aiindex.stanford.edu/report",
+    ///         AllDomainLinks = "nvidia.com",
     ///         IncludeTranslationFields = true,
     ///         IncludeNlpData = true,
     ///         HasNlp = true,
@@ -82,11 +90,11 @@ public partial class AuthorsClient
         }
         if (request.From != null)
         {
-            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
+            _query["from_"] = JsonUtils.Serialize(request.From);
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
+            _query["to_"] = JsonUtils.Serialize(request.To);
         }
         if (request.PublishedDatePrecision != null)
         {
@@ -286,16 +294,7 @@ public partial class AuthorsClient
     /// Searches for articles by author. You can filter results by language, country, source, and more.
     /// </summary>
     /// <example><code>
-    /// await client.Authors.PostAsync(
-    ///     new AuthorsPostRequest
-    ///     {
-    ///         AuthorName = "Joanna Stern",
-    ///         Sources = new List&lt;string&gt;() { "wsj.com", "nytimes.com" },
-    ///         Lang = "en",
-    ///         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-    ///         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-    ///     }
-    /// );
+    /// await client.Authors.PostAsync(new AuthorsPostRequest { AuthorName = "David Muir" });
     /// </code></example>
     public async Task<OneOf<SearchResponseDto, FailedAuthorsResponseDto>> PostAsync(
         AuthorsPostRequest request,

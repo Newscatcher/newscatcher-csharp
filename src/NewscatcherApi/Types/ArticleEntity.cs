@@ -9,13 +9,17 @@ namespace NewscatcherApi;
 /// The data model representing a single article in the search results.
 /// </summary>
 [Serializable]
-public record ArticleEntity
+public record ArticleEntity : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// The title of the article.
     /// </summary>
     [JsonPropertyName("title")]
-    public required string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     /// The primary author of the article.
@@ -69,19 +73,25 @@ public record ArticleEntity
     /// The URL link to the article.
     /// </summary>
     [JsonPropertyName("link")]
-    public required string Link { get; set; }
+    public string? Link { get; set; }
+
+    /// <summary>
+    /// Indicates whether the article URL is canonical.
+    /// </summary>
+    [JsonPropertyName("canonical_url")]
+    public bool? CanonicalUrl { get; set; }
 
     /// <summary>
     /// The domain URL of the article.
     /// </summary>
     [JsonPropertyName("domain_url")]
-    public required string DomainUrl { get; set; }
+    public string? DomainUrl { get; set; }
 
     /// <summary>
     /// The full domain URL of the article.
     /// </summary>
     [JsonPropertyName("full_domain_url")]
-    public required string FullDomainUrl { get; set; }
+    public string? FullDomainUrl { get; set; }
 
     /// <summary>
     /// The name of the source where the article was published.
@@ -105,7 +115,7 @@ public record ArticleEntity
     /// The categorical URL of the article.
     /// </summary>
     [JsonPropertyName("parent_url")]
-    public required string ParentUrl { get; set; }
+    public string? ParentUrl { get; set; }
 
     /// <summary>
     /// The country where the article was published.
@@ -123,7 +133,7 @@ public record ArticleEntity
     /// The rank of the article's source.
     /// </summary>
     [JsonPropertyName("rank")]
-    public required int Rank { get; set; }
+    public int? Rank { get; set; }
 
     /// <summary>
     /// The media associated with the article.
@@ -147,7 +157,7 @@ public record ArticleEntity
     /// The content of the article.
     /// </summary>
     [JsonPropertyName("content")]
-    public required string Content { get; set; }
+    public string? Content { get; set; }
 
     /// <summary>
     /// English translation of the article title. Available when using the `search_in` parameter with the `title_translated` option or by setting the `include_translation_fields` parameter to `true`.
@@ -198,13 +208,13 @@ public record ArticleEntity
     /// The unique identifier for the article.
     /// </summary>
     [JsonPropertyName("id")]
-    public required string Id { get; set; }
+    public string? Id { get; set; }
 
     /// <summary>
     /// The relevance score of the article.
     /// </summary>
     [JsonPropertyName("score")]
-    public required double Score { get; set; }
+    public double? Score { get; set; }
 
     /// <summary>
     /// True if the article content can be safely accessed according to the publisher's robots.txt rules; false otherwise.
@@ -221,15 +231,11 @@ public record ArticleEntity
     [JsonPropertyName("additional_domain_info")]
     public AdditionalDomainInfoEntity? AdditionalDomainInfo { get; set; }
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()

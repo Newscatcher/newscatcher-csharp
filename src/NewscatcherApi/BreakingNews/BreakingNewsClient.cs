@@ -1,6 +1,4 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -27,6 +25,10 @@ public partial class BreakingNewsClient
     ///         HasNlp = true,
     ///         Theme = "Business,Finance",
     ///         NotTheme = "Crime",
+    ///         OrgEntityName = "Apple",
+    ///         PerEntityName = "Elon Musk",
+    ///         LocEntityName = "California",
+    ///         MiscEntityName = "Bitcoin",
     ///     }
     /// );
     /// </code></example>
@@ -193,9 +195,8 @@ public partial class BreakingNewsClient
     ///     new BreakingNewsPostRequest
     ///     {
     ///         SortBy = SortBy.Relevancy,
-    ///         Page = 1,
-    ///         PageSize = 100,
-    ///         IncludeNlpData = true,
+    ///         RankedOnly = true,
+    ///         TopNArticles = 1,
     ///     }
     /// );
     /// </code></example>
