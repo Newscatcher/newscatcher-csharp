@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="NewscatcherApi.Test/NewscatcherApi.Test.csproj" />
+  <Project Path="NewscatcherApi/NewscatcherApi.csproj" />
+</Solution>

@@ -6,7 +6,7 @@ public partial class NewscatcherApiClient
 {
     private readonly RawClient _client;
 
-    public NewscatcherApiClient(string? apiKey = null, ClientOptions? clientOptions = null)
+    public NewscatcherApiClient(string apiKey, ClientOptions? clientOptions = null)
     {
         var defaultHeaders = new Headers(
             new Dictionary<string, string>()
@@ -15,7 +15,7 @@ public partial class NewscatcherApiClient
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "NewscatcherApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Newscatcher.Client/1.2.0" },
+                { "User-Agent", "Newscatcher.Client/AUTO" },
             }
         );
         clientOptions ??= new ClientOptions();

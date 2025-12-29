@@ -19,16 +19,16 @@ internal partial class RawClient(ClientOptions clientOptions)
     internal readonly ClientOptions Options = clientOptions;
 
     [Obsolete("Use SendRequestAsync instead.")]
-    internal Task<NewscatcherApi.Core.ApiResponse> MakeRequestAsync(
-        NewscatcherApi.Core.BaseRequest request,
+    internal Task<global::NewscatcherApi.Core.ApiResponse> MakeRequestAsync(
+        global::NewscatcherApi.Core.BaseRequest request,
         CancellationToken cancellationToken = default
     )
     {
         return SendRequestAsync(request, cancellationToken);
     }
 
-    internal async Task<NewscatcherApi.Core.ApiResponse> SendRequestAsync(
-        NewscatcherApi.Core.BaseRequest request,
+    internal async Task<global::NewscatcherApi.Core.ApiResponse> SendRequestAsync(
+        global::NewscatcherApi.Core.BaseRequest request,
         CancellationToken cancellationToken = default
     )
     {
@@ -43,7 +43,7 @@ internal partial class RawClient(ClientOptions clientOptions)
             .ConfigureAwait(false);
     }
 
-    internal async Task<NewscatcherApi.Core.ApiResponse> SendRequestAsync(
+    internal async Task<global::NewscatcherApi.Core.ApiResponse> SendRequestAsync(
         HttpRequestMessage request,
         IRequestOptions? options,
         CancellationToken cancellationToken = default
@@ -109,7 +109,7 @@ internal partial class RawClient(ClientOptions clientOptions)
     /// Sends the request with retries, unless the request content is not retryable,
     /// such as stream requests and multipart form data with stream content.
     /// </summary>
-    private async Task<NewscatcherApi.Core.ApiResponse> SendWithRetriesAsync(
+    private async Task<global::NewscatcherApi.Core.ApiResponse> SendWithRetriesAsync(
         HttpRequestMessage request,
         IRequestOptions? options,
         CancellationToken cancellationToken
@@ -117,12 +117,14 @@ internal partial class RawClient(ClientOptions clientOptions)
     {
         var httpClient = options?.HttpClient ?? Options.HttpClient;
         var maxRetries = options?.MaxRetries ?? Options.MaxRetries;
-        var response = await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        var response = await httpClient
+            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+            .ConfigureAwait(false);
         var isRetryableContent = IsRetryableContent(request);
 
         if (!isRetryableContent)
         {
-            return new NewscatcherApi.Core.ApiResponse
+            return new global::NewscatcherApi.Core.ApiResponse
             {
                 StatusCode = (int)response.StatusCode,
                 Raw = response,
@@ -140,11 +142,15 @@ internal partial class RawClient(ClientOptions clientOptions)
             await SystemTask.Delay(delayMs, cancellationToken).ConfigureAwait(false);
             using var retryRequest = await CloneRequestAsync(request).ConfigureAwait(false);
             response = await httpClient
-                .SendAsync(retryRequest, cancellationToken)
+                .SendAsync(
+                    retryRequest,
+                    HttpCompletionOption.ResponseHeadersRead,
+                    cancellationToken
+                )
                 .ConfigureAwait(false);
         }
 
-        return new NewscatcherApi.Core.ApiResponse
+        return new global::NewscatcherApi.Core.ApiResponse
         {
             StatusCode = (int)response.StatusCode,
             Raw = response,
@@ -168,7 +174,7 @@ internal partial class RawClient(ClientOptions clientOptions)
         };
     }
 
-    internal HttpRequestMessage CreateHttpRequest(NewscatcherApi.Core.BaseRequest request)
+    internal HttpRequestMessage CreateHttpRequest(global::NewscatcherApi.Core.BaseRequest request)
     {
         var url = BuildUrl(request);
         var httpRequest = new HttpRequestMessage(request.Method, url);
@@ -184,7 +190,7 @@ internal partial class RawClient(ClientOptions clientOptions)
         return httpRequest;
     }
 
-    private static string BuildUrl(NewscatcherApi.Core.BaseRequest request)
+    private static string BuildUrl(global::NewscatcherApi.Core.BaseRequest request)
     {
         var baseUrl = request.Options?.BaseUrl ?? request.BaseUrl;
         var trimmedBaseUrl = baseUrl.TrimEnd('/');
@@ -208,7 +214,9 @@ internal partial class RawClient(ClientOptions clientOptions)
                 {
                     var items = collection
                         .Cast<object>()
-                        .Select(value => $"{queryItem.Key}={value}")
+                        .Select(value =>
+                            $"{Uri.EscapeDataString(queryItem.Key)}={Uri.EscapeDataString(value?.ToString() ?? "")}"
+                        )
                         .ToList();
                     if (items.Any())
                     {
@@ -217,7 +225,8 @@ internal partial class RawClient(ClientOptions clientOptions)
                 }
                 else
                 {
-                    current += $"{queryItem.Key}={queryItem.Value}&";
+                    current +=
+                        $"{Uri.EscapeDataString(queryItem.Key)}={Uri.EscapeDataString(queryItem.Value)}&";
                 }
 
                 return current;
@@ -228,7 +237,7 @@ internal partial class RawClient(ClientOptions clientOptions)
     }
 
     private static List<KeyValuePair<string, string>> GetQueryParameters(
-        NewscatcherApi.Core.BaseRequest request
+        global::NewscatcherApi.Core.BaseRequest request
     )
     {
         var result = TransformToKeyValuePairs(request.Query);
@@ -384,26 +393,27 @@ internal partial class RawClient(ClientOptions clientOptions)
     }
 
     /// <inheritdoc />
-    [Obsolete("Use NewscatcherApi.Core.ApiResponse instead.")]
-    internal record ApiResponse : NewscatcherApi.Core.ApiResponse;
+    [Obsolete("Use global::NewscatcherApi.Core.ApiResponse instead.")]
+    internal record ApiResponse : global::NewscatcherApi.Core.ApiResponse;
 
     /// <inheritdoc />
-    [Obsolete("Use NewscatcherApi.Core.BaseRequest instead.")]
-    internal abstract record BaseApiRequest : NewscatcherApi.Core.BaseRequest;
+    [Obsolete("Use global::NewscatcherApi.Core.BaseRequest instead.")]
+    internal abstract record BaseApiRequest : global::NewscatcherApi.Core.BaseRequest;
 
     /// <inheritdoc />
-    [Obsolete("Use NewscatcherApi.Core.EmptyRequest instead.")]
-    internal abstract record EmptyApiRequest : NewscatcherApi.Core.EmptyRequest;
+    [Obsolete("Use global::NewscatcherApi.Core.EmptyRequest instead.")]
+    internal abstract record EmptyApiRequest : global::NewscatcherApi.Core.EmptyRequest;
 
     /// <inheritdoc />
-    [Obsolete("Use NewscatcherApi.Core.JsonRequest instead.")]
-    internal abstract record JsonApiRequest : NewscatcherApi.Core.JsonRequest;
+    [Obsolete("Use global::NewscatcherApi.Core.JsonRequest instead.")]
+    internal abstract record JsonApiRequest : global::NewscatcherApi.Core.JsonRequest;
 
     /// <inheritdoc />
-    [Obsolete("Use NewscatcherApi.Core.MultipartFormRequest instead.")]
-    internal abstract record MultipartFormRequest : NewscatcherApi.Core.MultipartFormRequest;
+    [Obsolete("Use global::NewscatcherApi.Core.MultipartFormRequest instead.")]
+    internal abstract record MultipartFormRequest
+        : global::NewscatcherApi.Core.MultipartFormRequest;
 
     /// <inheritdoc />
-    [Obsolete("Use NewscatcherApi.Core.StreamRequest instead.")]
-    internal abstract record StreamApiRequest : NewscatcherApi.Core.StreamRequest;
+    [Obsolete("Use global::NewscatcherApi.Core.StreamRequest instead.")]
+    internal abstract record StreamApiRequest : global::NewscatcherApi.Core.StreamRequest;
 }

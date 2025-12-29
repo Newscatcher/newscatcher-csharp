@@ -30,16 +30,32 @@ Searches for articles based on specified criteria such as keyword, language, cou
 await client.Search.GetAsync(
     new SearchGetRequest
     {
-        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        Q = "\"supply chain\" AND Amazon NOT China",
         SearchIn = "title_content, title_content_translated",
         IncludeTranslationFields = true,
         PredefinedSources = "top 100 US, top 5 GB",
+        SourceName = "sport",
+        Sources = "nytimes.com",
+        NotSources = "cnn.com",
+        Lang = "en",
+        NotLang = "fr",
+        Countries = "US",
+        NotCountries = "UK",
+        NotAuthorName = "John Doe",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        ParentUrl = "https://www.washingtonpost.com/politics",
+        AllLinks = "https://aiindex.stanford.edu/report",
+        AllDomainLinks = "nvidia.com",
+        NewsType = "General News Outlets",
         IncludeNlpData = true,
         HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
+        OrgEntityName = "Apple",
+        PerEntityName = "Elon Musk",
+        LocEntityName = "California",
+        MiscEntityName = "Bitcoin",
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
         IabTags = "Business,Events",
@@ -101,16 +117,7 @@ Searches for articles based on specified criteria such as keyword, language, cou
 
 ```csharp
 await client.Search.PostAsync(
-    new SearchPostRequest
-    {
-        Q = "renewable energy",
-        PredefinedSources = new List<string>() { "top 50 US" },
-        Lang = new List<string>() { "en" },
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-        AdditionalDomainInfo = true,
-        IsNewsDomain = true,
-    }
+    new SearchPostRequest { Q = "\"supply chain\" AND Amazon NOT China", PageSize = 1 }
 );
 ```
 </dd>
@@ -169,12 +176,27 @@ Retrieves the latest headlines for the specified time period. You can filter res
 await client.Latestheadlines.GetAsync(
     new LatestHeadlinesGetRequest
     {
+        When = "7d",
+        Lang = "en",
+        NotLang = "fr",
+        Countries = "US",
+        NotCountries = "UK",
         PredefinedSources = "top 100 US, top 5 GB",
+        Sources = "nytimes.com",
+        NotSources = "cnn.com",
+        NotAuthorName = "John Doe",
+        ParentUrl = "https://www.washingtonpost.com/politics",
+        AllLinks = "https://aiindex.stanford.edu/report",
+        AllDomainLinks = "nvidia.com",
         IncludeTranslationFields = true,
         IncludeNlpData = true,
         HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
+        OrgEntityName = "Apple",
+        PerEntityName = "Elon Musk",
+        LocEntityName = "California",
+        MiscEntityName = "Bitcoin",
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
         IabTags = "Business,Events",
@@ -236,13 +258,7 @@ Retrieves the latest headlines for the specified time period. You can filter res
 
 ```csharp
 await client.Latestheadlines.PostAsync(
-    new LatestHeadlinesPostRequest
-    {
-        Lang = "en",
-        PredefinedSources = new List<string>() { "top 50 US", "top 20 GB" },
-        IsOpinion = false,
-        PageSize = 10,
-    }
+    new LatestHeadlinesPostRequest { When = "7d", PageSize = 1 }
 );
 ```
 </dd>
@@ -307,6 +323,10 @@ await client.BreakingNews.BreakingNewsGetAsync(
         HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
+        OrgEntityName = "Apple",
+        PerEntityName = "Elon Musk",
+        LocEntityName = "California",
+        MiscEntityName = "Bitcoin",
     }
 );
 ```
@@ -366,9 +386,8 @@ await client.BreakingNews.BreakingNewsPostAsync(
     new BreakingNewsPostRequest
     {
         SortBy = SortBy.Relevancy,
-        Page = 1,
-        PageSize = 100,
-        IncludeNlpData = true,
+        RankedOnly = true,
+        TopNArticles = 1,
     }
 );
 ```
@@ -429,9 +448,19 @@ await client.Authors.GetAsync(
     new AuthorsGetRequest
     {
         AuthorName = "Jane Smith",
+        NotAuthorName = "John Doe",
         PredefinedSources = "top 100 US, top 5 GB",
+        Sources = "nytimes.com",
+        NotSources = "cnn.com",
+        Lang = "en",
+        NotLang = "fr",
+        Countries = "US",
+        NotCountries = "UK",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        ParentUrl = "https://www.washingtonpost.com/politics",
+        AllLinks = "https://aiindex.stanford.edu/report",
+        AllDomainLinks = "nvidia.com",
         IncludeTranslationFields = true,
         IncludeNlpData = true,
         HasNlp = true,
@@ -498,16 +527,7 @@ Searches for articles by author. You can filter results by language, country, so
 <dd>
 
 ```csharp
-await client.Authors.PostAsync(
-    new AuthorsPostRequest
-    {
-        AuthorName = "Joanna Stern",
-        Sources = new List<string>() { "wsj.com", "nytimes.com" },
-        Lang = "en",
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-    }
-);
+await client.Authors.PostAsync(new AuthorsPostRequest { AuthorName = "David Muir" });
 ```
 </dd>
 </dl>
@@ -565,6 +585,9 @@ Searches for articles based on specified links or IDs. You can filter results by
 await client.SearchLink.SearchUrlGetAsync(
     new SearchUrlGetRequest
     {
+        Ids = "5f8d0d55b6e45e00179c6e7e",
+        Links = "https://nytimes.com/article1",
+        Source = "articles.id,articles.title,articles.link,articles.published_date",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
     }
@@ -625,16 +648,9 @@ Searches for articles using their ID(s) or link(s).
 await client.SearchLink.SearchUrlPostAsync(
     new SearchUrlPostRequest
     {
-        Ids = new List<string>()
-        {
-            "8ea8a784568ffaa05cb6d1ab2d2e84dd",
-            "0146a551ef05ab1c494a55e806e3ce64",
-        },
-        Links = new List<string>()
-        {
-            "https://www.nytimes.com/2024/08/30/technology/ai-chatbot-chatgpt-manipulation.html",
-            "https://www.bbc.com/news/articles/c39k379grzlo",
-        },
+        Links =
+            "https://www.reuters.com/business/energy/oil-prices-up-after-israeli-attacks-oversupply-caps-gains-2025-09-10/",
+        Source = "articles.id,articles.title,articles.link,articles.canonical_url",
     }
 );
 ```
@@ -694,13 +710,22 @@ Searches for articles similar to a specified query.
 await client.Searchsimilar.GetAsync(
     new SearchSimilarGetRequest
     {
-        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        Q = "\"supply chain\" AND Amazon NOT China",
         SearchIn = "title_content, title_content_translated",
         IncludeTranslationFields = true,
         SimilarDocumentsFields = "title,summary",
         PredefinedSources = "top 100 US, top 5 GB",
+        Sources = "nytimes.com",
+        NotSources = "cnn.com",
+        Lang = "en",
+        NotLang = "fr",
+        Countries = "US",
+        NotCountries = "UK",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        ParentUrl = "https://www.washingtonpost.com/politics",
+        AllLinks = "https://aiindex.stanford.edu/report",
+        AllDomainLinks = "nvidia.com",
         IncludeNlpData = true,
         HasNlp = true,
         Theme = "Business,Finance",
@@ -767,9 +792,10 @@ Searches for articles similar to the specified query. You can filter results by 
 await client.Searchsimilar.PostAsync(
     new SearchSimilarPostRequest
     {
-        Q = "artificial intelligence",
+        Q = "\"supply chain\" AND Amazon NOT China",
         IncludeSimilarDocuments = true,
         SimilarDocumentsNumber = 5,
+        PageSize = 10,
     }
 );
 ```
@@ -827,7 +853,15 @@ Retrieves a list of sources based on specified criteria such as language, countr
 
 ```csharp
 await client.Sources.GetAsync(
-    new SourcesGetRequest { PredefinedSources = "top 100 US, top 5 GB", SourceUrl = "bbc.com" }
+    new SourcesGetRequest
+    {
+        Lang = "en",
+        Countries = "US",
+        PredefinedSources = "top 100 US, top 5 GB",
+        SourceName = "sport",
+        SourceUrl = "bbc.com",
+        NewsType = "General News Outlets",
+    }
 );
 ```
 </dd>
@@ -882,16 +916,7 @@ Retrieves the list of sources available in the database. You can filter the sour
 <dd>
 
 ```csharp
-await client.Sources.PostAsync(
-    new SourcesPostRequest
-    {
-        PredefinedSources = new List<string>() { "top 50 US" },
-        IncludeAdditionalInfo = true,
-        IsNewsDomain = true,
-        NewsDomainType = NewsDomainType.OriginalContent,
-        NewsType = "General News Outlets",
-    }
-);
+await client.Sources.PostAsync(new SourcesPostRequest { PredefinedSources = "top 10 US" });
 ```
 </dd>
 </dl>
@@ -949,15 +974,29 @@ Retrieves the count of articles aggregated by day or hour based on various searc
 await client.Aggregation.GetAsync(
     new AggregationGetRequest
     {
-        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        Q = "\"supply chain\" AND Amazon NOT China",
         SearchIn = "title_content, title_content_translated",
         PredefinedSources = "top 100 US, top 5 GB",
+        Sources = "nytimes.com",
+        NotSources = "cnn.com",
+        Lang = "en",
+        NotLang = "fr",
+        Countries = "US",
+        NotCountries = "UK",
+        NotAuthorName = "John Doe",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        ParentUrl = "https://www.washingtonpost.com/politics",
+        AllLinks = "https://aiindex.stanford.edu/report",
+        AllDomainLinks = "nvidia.com",
         IncludeNlpData = true,
         HasNlp = true,
         Theme = "Business,Finance",
         NotTheme = "Crime",
+        OrgEntityName = "Apple",
+        PerEntityName = "Elon Musk",
+        LocEntityName = "California",
+        MiscEntityName = "Bitcoin",
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
     }
@@ -1018,11 +1057,8 @@ Retrieves the count of articles aggregated by day or hour based on various searc
 await client.Aggregation.PostAsync(
     new AggregationPostRequest
     {
-        Q = "renewable energy",
+        Q = "\"supply chain\" AND Amazon NOT China",
         AggregationBy = AggregationBy.Day,
-        PredefinedSources = "top 50 US",
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
     }
 );
 ```

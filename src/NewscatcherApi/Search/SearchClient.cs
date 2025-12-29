@@ -1,6 +1,4 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
@@ -22,16 +20,32 @@ public partial class SearchClient
     /// await client.Search.GetAsync(
     ///     new SearchGetRequest
     ///     {
-    ///         Q = "technology AND (Apple OR Microsoft) NOT Google",
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
     ///         SearchIn = "title_content, title_content_translated",
     ///         IncludeTranslationFields = true,
     ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         SourceName = "sport",
+    ///         Sources = "nytimes.com",
+    ///         NotSources = "cnn.com",
+    ///         Lang = "en",
+    ///         NotLang = "fr",
+    ///         Countries = "US",
+    ///         NotCountries = "UK",
+    ///         NotAuthorName = "John Doe",
     ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
     ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         ParentUrl = "https://www.washingtonpost.com/politics",
+    ///         AllLinks = "https://aiindex.stanford.edu/report",
+    ///         AllDomainLinks = "nvidia.com",
+    ///         NewsType = "General News Outlets",
     ///         IncludeNlpData = true,
     ///         HasNlp = true,
     ///         Theme = "Business,Finance",
     ///         NotTheme = "Crime",
+    ///         OrgEntityName = "Apple",
+    ///         PerEntityName = "Elon Musk",
+    ///         LocEntityName = "California",
+    ///         MiscEntityName = "Bitcoin",
     ///         IptcTags = "20000199,20000209",
     ///         NotIptcTags = "20000205,20000209",
     ///         IabTags = "Business,Events",
@@ -96,11 +110,11 @@ public partial class SearchClient
         }
         if (request.From != null)
         {
-            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
+            _query["from_"] = JsonUtils.Serialize(request.From);
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
+            _query["to_"] = JsonUtils.Serialize(request.To);
         }
         if (request.PublishedDatePrecision != null)
         {
@@ -341,16 +355,7 @@ public partial class SearchClient
     /// </summary>
     /// <example><code>
     /// await client.Search.PostAsync(
-    ///     new SearchPostRequest
-    ///     {
-    ///         Q = "renewable energy",
-    ///         PredefinedSources = new List&lt;string&gt;() { "top 50 US" },
-    ///         Lang = new List&lt;string&gt;() { "en" },
-    ///         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-    ///         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-    ///         AdditionalDomainInfo = true,
-    ///         IsNewsDomain = true,
-    ///     }
+    ///     new SearchPostRequest { Q = "\"supply chain\" AND Amazon NOT China", PageSize = 1 }
     /// );
     /// </code></example>
     public async Task<OneOf<SearchResponseDto, ClusteredSearchResponseDto>> PostAsync(

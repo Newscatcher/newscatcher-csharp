@@ -1,6 +1,4 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
@@ -22,13 +20,22 @@ public partial class SearchsimilarClient
     /// await client.Searchsimilar.GetAsync(
     ///     new SearchSimilarGetRequest
     ///     {
-    ///         Q = "technology AND (Apple OR Microsoft) NOT Google",
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
     ///         SearchIn = "title_content, title_content_translated",
     ///         IncludeTranslationFields = true,
     ///         SimilarDocumentsFields = "title,summary",
     ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         Sources = "nytimes.com",
+    ///         NotSources = "cnn.com",
+    ///         Lang = "en",
+    ///         NotLang = "fr",
+    ///         Countries = "US",
+    ///         NotCountries = "UK",
     ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
     ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         ParentUrl = "https://www.washingtonpost.com/politics",
+    ///         AllLinks = "https://aiindex.stanford.edu/report",
+    ///         AllDomainLinks = "nvidia.com",
     ///         IncludeNlpData = true,
     ///         HasNlp = true,
     ///         Theme = "Business,Finance",
@@ -102,11 +109,11 @@ public partial class SearchsimilarClient
         }
         if (request.From != null)
         {
-            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
+            _query["from_"] = JsonUtils.Serialize(request.From);
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
+            _query["to_"] = JsonUtils.Serialize(request.To);
         }
         if (request.ByParseDate != null)
         {
@@ -295,9 +302,10 @@ public partial class SearchsimilarClient
     /// await client.Searchsimilar.PostAsync(
     ///     new SearchSimilarPostRequest
     ///     {
-    ///         Q = "artificial intelligence",
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
     ///         IncludeSimilarDocuments = true,
     ///         SimilarDocumentsNumber = 5,
+    ///         PageSize = 10,
     ///     }
     /// );
     /// </code></example>

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
+using OneOf;
 
 namespace NewscatcherApi;
 
@@ -105,7 +106,7 @@ public record AuthorsGetRequest
     /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
     /// </summary>
     [JsonIgnore]
-    public DateTime? From { get; set; }
+    public OneOf<DateTime, string>? From { get; set; }
 
     /// <summary>
     /// The ending point in time to search up to. Accepts date-time strings in ISO 8601 format and plain text. The default time zone is UTC.
@@ -120,7 +121,7 @@ public record AuthorsGetRequest
     /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
     /// </summary>
     [JsonIgnore]
-    public DateTime? To { get; set; }
+    public OneOf<DateTime, string>? To { get; set; }
 
     /// <summary>
     /// The precision of the published date. There are three types:
