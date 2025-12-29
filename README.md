@@ -3,7 +3,21 @@
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FNewscatcher%2Fnewscatcher-csharp)
 [![nuget shield](https://img.shields.io/nuget/v/NewscatcherApi)](https://nuget.org/packages/NewscatcherApi)
 
-The Newscatcher C# library provides convenient access to the Newscatcher API from C#.
+The Newscatcher C# library provides convenient access to the Newscatcher APIs from C#.
+
+## Table of Contents
+
+- [Documentation](#documentation)
+- [Installation](#installation)
+- [Reference](#reference)
+- [Usage](#usage)
+- [Exception Handling](#exception-handling)
+- [Advanced](#advanced)
+  - [Retries](#retries)
+  - [Timeouts](#timeouts)
+  - [Forward Compatible Enums](#forward-compatible-enums)
+- [Contributing](#contributing)
+- [Requirements](#requirements)
 
 ## Documentation
 
@@ -15,6 +29,10 @@ API reference documentation is available [here](https://www.newscatcherapi.com/d
 dotnet add package NewscatcherApi
 ```
 
+## Reference
+
+A full reference for this library is available [here](https://github.com/Newscatcher/newscatcher-csharp/blob/HEAD/./reference.md).
+
 ## Usage
 
 Instantiate and use the client with the following:
@@ -24,16 +42,7 @@ using NewscatcherApi;
 
 var client = new NewscatcherApiClient("API_KEY");
 await client.Search.PostAsync(
-    new SearchPostRequest
-    {
-        Q = "renewable energy",
-        PredefinedSources = new List<string>() { "top 50 US" },
-        Lang = new List<string>() { "en" },
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-        AdditionalDomainInfo = true,
-        IsNewsDomain = true,
-    }
+    new SearchPostRequest { Q = "\"supply chain\" AND Amazon NOT China", PageSize = 1 }
 );
 ```
 
@@ -89,6 +98,35 @@ var response = await client.Search.PostAsync(
         Timeout: TimeSpan.FromSeconds(3) // Override timeout to 3s
     }
 );
+```
+
+### Forward Compatible Enums
+
+This SDK uses forward-compatible enums that can handle unknown values gracefully.
+
+```csharp
+using NewscatcherApi;
+
+// Using a built-in value
+var searchGetRequestPublishedDatePrecision = SearchGetRequestPublishedDatePrecision.Full;
+
+// Using a custom value
+var customSearchGetRequestPublishedDatePrecision = SearchGetRequestPublishedDatePrecision.FromCustom("custom-value");
+
+// Using in a switch statement
+switch (searchGetRequestPublishedDatePrecision.Value)
+{
+    case SearchGetRequestPublishedDatePrecision.Values.Full:
+        Console.WriteLine("Full");
+        break;
+    default:
+        Console.WriteLine($"Unknown value: {searchGetRequestPublishedDatePrecision.Value}");
+        break;
+}
+
+// Explicit casting
+string searchGetRequestPublishedDatePrecisionString = (string)SearchGetRequestPublishedDatePrecision.Full;
+SearchGetRequestPublishedDatePrecision searchGetRequestPublishedDatePrecisionFromString = (SearchGetRequestPublishedDatePrecision)"full";
 ```
 
 ## Contributing
