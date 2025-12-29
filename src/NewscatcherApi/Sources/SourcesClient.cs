@@ -1,6 +1,4 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -19,7 +17,15 @@ public partial class SourcesClient
     /// </summary>
     /// <example><code>
     /// await client.Sources.GetAsync(
-    ///     new SourcesGetRequest { PredefinedSources = "top 100 US, top 5 GB", SourceUrl = "bbc.com" }
+    ///     new SourcesGetRequest
+    ///     {
+    ///         Lang = "en",
+    ///         Countries = "US",
+    ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         SourceName = "sport",
+    ///         SourceUrl = "bbc.com",
+    ///         NewsType = "General News Outlets",
+    ///     }
     /// );
     /// </code></example>
     public async Task<SourcesResponseDto> GetAsync(
@@ -141,16 +147,7 @@ public partial class SourcesClient
     /// Retrieves the list of sources available in the database. You can filter the sources by language, country, and more.
     /// </summary>
     /// <example><code>
-    /// await client.Sources.PostAsync(
-    ///     new SourcesPostRequest
-    ///     {
-    ///         PredefinedSources = new List&lt;string&gt;() { "top 50 US" },
-    ///         IncludeAdditionalInfo = true,
-    ///         IsNewsDomain = true,
-    ///         NewsDomainType = NewsDomainType.OriginalContent,
-    ///         NewsType = "General News Outlets",
-    ///     }
-    /// );
+    /// await client.Sources.PostAsync(new SourcesPostRequest { PredefinedSources = "top 10 US" });
     /// </code></example>
     public async Task<SourcesResponseDto> PostAsync(
         SourcesPostRequest request,

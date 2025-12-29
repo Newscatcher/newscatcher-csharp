@@ -28,6 +28,9 @@ public record SearchUrlGetRequest
     public string? Links { get; set; }
 
     [JsonIgnore]
+    public string? Source { get; set; }
+
+    [JsonIgnore]
     public OneOf<DateTime, string>? From { get; set; }
 
     [JsonIgnore]
