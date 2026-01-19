@@ -2,7 +2,7 @@ using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
 
-public partial class NewscatcherApiClient
+public partial class NewscatcherApiClient : INewscatcherApiClient
 {
     private readonly RawClient _client;
 
@@ -11,11 +11,11 @@ public partial class NewscatcherApiClient
         var defaultHeaders = new Headers(
             new Dictionary<string, string>()
             {
-                { "x-api-token", apiKey },
+                { "x-api-token", apiKey ?? "" },
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "NewscatcherApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Newscatcher.Client/1.2.0" },
+                { "User-Agent", "Newscatcher.Client/1.2.1" },
             }
         );
         clientOptions ??= new ClientOptions();

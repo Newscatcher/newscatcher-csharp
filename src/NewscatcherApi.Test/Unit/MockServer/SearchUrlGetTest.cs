@@ -1,0 +1,128 @@
+using System.Globalization;
+using NewscatcherApi;
+using NewscatcherApi.Core;
+using NUnit.Framework;
+
+namespace NewscatcherApi.Test.Unit.MockServer;
+
+[TestFixture]
+public class SearchUrlGetTest : BaseMockServerTest
+{
+    [NUnit.Framework.Test]
+    public async Task MockServerTest()
+    {
+        const string mockResponse = """
+            {
+              "status": "status",
+              "total_hits": 1,
+              "page": 1,
+              "total_pages": 1,
+              "page_size": 1,
+              "articles": [
+                {
+                  "title": "title",
+                  "author": "author",
+                  "authors": [
+                    "authors"
+                  ],
+                  "journalists": [
+                    "journalists"
+                  ],
+                  "published_date": "published_date",
+                  "published_date_precision": "published_date_precision",
+                  "updated_date": "updated_date",
+                  "updated_date_precision": "updated_date_precision",
+                  "parse_date": "parse_date",
+                  "link": "link",
+                  "canonical_url": true,
+                  "domain_url": "domain_url",
+                  "full_domain_url": "full_domain_url",
+                  "name_source": "name_source",
+                  "is_headline": true,
+                  "paid_content": true,
+                  "parent_url": "parent_url",
+                  "country": "country",
+                  "rights": "rights",
+                  "rank": 1,
+                  "media": "media",
+                  "language": "language",
+                  "description": "description",
+                  "content": "content",
+                  "title_translated_en": "title_translated_en",
+                  "content_translated_en": "content_translated_en",
+                  "word_count": 1,
+                  "is_opinion": true,
+                  "twitter_account": "twitter_account",
+                  "all_links": [
+                    "all_links"
+                  ],
+                  "all_domain_links": [
+                    "all_domain_links"
+                  ],
+                  "id": "id",
+                  "score": 1.1,
+                  "robots_compliant": true,
+                  "custom_tags": {
+                    "key": [
+                      "value"
+                    ]
+                  },
+                  "additional_domain_info": {
+                    "is_news_domain": true,
+                    "news_type": "News and Blogs",
+                    "news_domain_type": "Original Content"
+                  }
+                }
+              ],
+              "user_input": {
+                "key": "value"
+              }
+            }
+            """;
+
+        Server
+            .Given(
+                WireMock
+                    .RequestBuilders.Request.Create()
+                    .WithPath("/api/search_by_link")
+                    .WithParam("ids", "5f8d0d55b6e45e00179c6e7e")
+                    .WithParam("links", "https://nytimes.com/article1")
+                    .WithParam(
+                        "_source",
+                        "articles.id,articles.title,articles.link,articles.published_date"
+                    )
+                    .WithParam("from_", "2024-07-01T00:00:00Z")
+                    .WithParam("to_", "2024-01-01T00:00:00Z")
+                    .UsingGet()
+            )
+            .RespondWith(
+                WireMock
+                    .ResponseBuilders.Response.Create()
+                    .WithStatusCode(200)
+                    .WithBody(mockResponse)
+            );
+
+        var response = await Client.SearchLink.SearchUrlGetAsync(
+            new SearchUrlGetRequest
+            {
+                Ids = "5f8d0d55b6e45e00179c6e7e",
+                Links = "https://nytimes.com/article1",
+                Source = "articles.id,articles.title,articles.link,articles.published_date",
+                From = DateTime.Parse(
+                    "2024-07-01T00:00:00.000Z",
+                    null,
+                    DateTimeStyles.AdjustToUniversal
+                ),
+                To = DateTime.Parse(
+                    "2024-01-01T00:00:00.000Z",
+                    null,
+                    DateTimeStyles.AdjustToUniversal
+                ),
+            }
+        );
+        Assert.That(
+            response,
+            Is.EqualTo(JsonUtils.Deserialize<SearchResponseDto>(mockResponse)).UsingDefaults()
+        );
+    }
+}

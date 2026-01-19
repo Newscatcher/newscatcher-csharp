@@ -13,6 +13,9 @@ public record SearchUrlPostRequest
     [JsonPropertyName("links")]
     public OneOf<string, IEnumerable<string>>? Links { get; set; }
 
+    [JsonPropertyName("_source")]
+    public string? Source { get; set; }
+
     /// <summary>
     /// The starting point in time to search from. Accepts date-time strings in ISO 8601 format and plain text strings. The default time zone is UTC.
     ///
