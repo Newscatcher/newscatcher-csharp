@@ -1,11 +1,9 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
 
-public partial class SubscriptionClient
+public partial class SubscriptionClient : ISubscriptionClient
 {
     private RawClient _client;
 

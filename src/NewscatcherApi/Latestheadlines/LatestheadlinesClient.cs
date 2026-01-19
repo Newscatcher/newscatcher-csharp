@@ -1,12 +1,10 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
 namespace NewscatcherApi;
 
-public partial class LatestheadlinesClient
+public partial class LatestheadlinesClient : ILatestheadlinesClient
 {
     private RawClient _client;
 
@@ -22,12 +20,27 @@ public partial class LatestheadlinesClient
     /// await client.Latestheadlines.GetAsync(
     ///     new LatestHeadlinesGetRequest
     ///     {
+    ///         When = "7d",
+    ///         Lang = "en",
+    ///         NotLang = "fr",
+    ///         Countries = "US",
+    ///         NotCountries = "UK",
     ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         Sources = "nytimes.com",
+    ///         NotSources = "cnn.com",
+    ///         NotAuthorName = "John Doe",
+    ///         ParentUrl = "https://www.washingtonpost.com/politics",
+    ///         AllLinks = "https://aiindex.stanford.edu/report",
+    ///         AllDomainLinks = "nvidia.com",
     ///         IncludeTranslationFields = true,
     ///         IncludeNlpData = true,
     ///         HasNlp = true,
     ///         Theme = "Business,Finance",
     ///         NotTheme = "Crime",
+    ///         OrgEntityName = "Apple",
+    ///         PerEntityName = "Elon Musk",
+    ///         LocEntityName = "California",
+    ///         MiscEntityName = "Bitcoin",
     ///         IptcTags = "20000199,20000209",
     ///         NotIptcTags = "20000205,20000209",
     ///         IabTags = "Business,Events",
@@ -286,13 +299,7 @@ public partial class LatestheadlinesClient
     /// </summary>
     /// <example><code>
     /// await client.Latestheadlines.PostAsync(
-    ///     new LatestHeadlinesPostRequest
-    ///     {
-    ///         Lang = "en",
-    ///         PredefinedSources = new List&lt;string&gt;() { "top 50 US", "top 20 GB" },
-    ///         IsOpinion = false,
-    ///         PageSize = 10,
-    ///     }
+    ///     new LatestHeadlinesPostRequest { When = "7d", PageSize = 1 }
     /// );
     /// </code></example>
     public async Task<OneOf<SearchResponseDto, ClusteredSearchResponseDto>> PostAsync(

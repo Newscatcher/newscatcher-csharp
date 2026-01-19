@@ -1,12 +1,10 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
 namespace NewscatcherApi;
 
-public partial class AggregationClient
+public partial class AggregationClient : IAggregationClient
 {
     private RawClient _client;
 
@@ -22,15 +20,29 @@ public partial class AggregationClient
     /// await client.Aggregation.GetAsync(
     ///     new AggregationGetRequest
     ///     {
-    ///         Q = "technology AND (Apple OR Microsoft) NOT Google",
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
     ///         SearchIn = "title_content, title_content_translated",
     ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         Sources = "nytimes.com",
+    ///         NotSources = "cnn.com",
+    ///         Lang = "en",
+    ///         NotLang = "fr",
+    ///         Countries = "US",
+    ///         NotCountries = "UK",
+    ///         NotAuthorName = "John Doe",
     ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
     ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         ParentUrl = "https://www.washingtonpost.com/politics",
+    ///         AllLinks = "https://aiindex.stanford.edu/report",
+    ///         AllDomainLinks = "nvidia.com",
     ///         IncludeNlpData = true,
     ///         HasNlp = true,
     ///         Theme = "Business,Finance",
     ///         NotTheme = "Crime",
+    ///         OrgEntityName = "Apple",
+    ///         PerEntityName = "Elon Musk",
+    ///         LocEntityName = "California",
+    ///         MiscEntityName = "Bitcoin",
     ///         IptcTags = "20000199,20000209",
     ///         NotIptcTags = "20000205,20000209",
     ///     }
@@ -88,11 +100,11 @@ public partial class AggregationClient
         }
         if (request.From != null)
         {
-            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
+            _query["from_"] = JsonUtils.Serialize(request.From);
         }
         if (request.To != null)
         {
-            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
+            _query["to_"] = JsonUtils.Serialize(request.To);
         }
         if (request.PublishedDatePrecision != null)
         {
@@ -289,11 +301,8 @@ public partial class AggregationClient
     /// await client.Aggregation.PostAsync(
     ///     new AggregationPostRequest
     ///     {
-    ///         Q = "renewable energy",
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
     ///         AggregationBy = AggregationBy.Day,
-    ///         PredefinedSources = "top 50 US",
-    ///         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-    ///         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
     ///     }
     /// );
     /// </code></example>

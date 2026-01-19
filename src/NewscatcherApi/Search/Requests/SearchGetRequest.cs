@@ -1,23 +1,12 @@
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
+using OneOf;
 
 namespace NewscatcherApi;
 
 [Serializable]
 public record SearchGetRequest
 {
-    /// <summary>
-    /// The keyword(s) to search for in articles. Query syntax supports logical operators (`AND`, `OR`, `NOT`) and wildcards:
-    ///
-    /// - For an exact match, use double quotes. For example, `"technology news"`.
-    /// - Use `*` to search for any keyword.
-    /// - Use `+` to include and `-` to exclude specific words or phrases.
-    ///   For example, `+Apple`, `-Google`.
-    /// - Use `AND`, `OR`, and `NOT` to refine search results.
-    ///   For example, `technology AND (Apple OR Microsoft) NOT Google`.
-    ///
-    /// For more details, see [Advanced querying](/docs/v3/documentation/guides-and-concepts/advanced-querying).
-    /// </summary>
     [JsonIgnore]
     public required string Q { get; set; }
 
@@ -130,7 +119,7 @@ public record SearchGetRequest
     /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
     /// </summary>
     [JsonIgnore]
-    public DateTime? From { get; set; }
+    public OneOf<DateTime, string>? From { get; set; }
 
     /// <summary>
     /// The ending point in time to search up to. Accepts date-time strings in ISO 8601 format and plain text. The default time zone is UTC.
@@ -145,7 +134,7 @@ public record SearchGetRequest
     /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
     /// </summary>
     [JsonIgnore]
-    public DateTime? To { get; set; }
+    public OneOf<DateTime, string>? To { get; set; }
 
     /// <summary>
     /// The precision of the published date. There are three types:
