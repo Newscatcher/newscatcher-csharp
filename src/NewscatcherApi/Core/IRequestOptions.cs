@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Net.Http;
-
 namespace NewscatcherApi.Core;
 
 internal interface IRequestOptions
@@ -26,11 +23,6 @@ internal interface IRequestOptions
         set;
 #endif
     }
-
-    /// <summary>
-    /// The http headers sent with the request.
-    /// </summary>
-    internal Headers Headers { get; init; }
 
     /// <summary>
     /// Additional headers to be sent with the request.

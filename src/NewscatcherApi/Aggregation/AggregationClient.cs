@@ -1,12 +1,10 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 using OneOf;
 
 namespace NewscatcherApi;
 
-public partial class AggregationClient
+public partial class AggregationClient : IAggregationClient
 {
     private RawClient _client;
 
@@ -15,209 +13,67 @@ public partial class AggregationClient
         _client = client;
     }
 
-    /// <summary>
-    /// Retrieves the count of articles aggregated by day or hour based on various search criteria, such as keyword, language, country, and source.
-    /// </summary>
-    /// <example><code>
-    /// await client.Aggregation.GetAsync(
-    ///     new AggregationGetRequest
-    ///     {
-    ///         Q = "technology AND (Apple OR Microsoft) NOT Google",
-    ///         SearchIn = "title_content, title_content_translated",
-    ///         PredefinedSources = "top 100 US, top 5 GB",
-    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-    ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-    ///         IncludeNlpData = true,
-    ///         HasNlp = true,
-    ///         Theme = "Business,Finance",
-    ///         NotTheme = "Crime",
-    ///         IptcTags = "20000199,20000209",
-    ///         NotIptcTags = "20000205,20000209",
-    ///     }
-    /// );
-    /// </code></example>
-    public async Task<
-        OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
-    > GetAsync(
+    private async Task<
+        WithRawResponse<OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>>
+    > GetAsyncCore(
         AggregationGetRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var _query = new Dictionary<string, object>();
-        _query["q"] = request.Q;
-        if (request.AggregationBy != null)
-        {
-            _query["aggregation_by"] = request.AggregationBy.Value.Stringify();
-        }
-        if (request.SearchIn != null)
-        {
-            _query["search_in"] = request.SearchIn;
-        }
-        if (request.PredefinedSources != null)
-        {
-            _query["predefined_sources"] = request.PredefinedSources;
-        }
-        if (request.Sources != null)
-        {
-            _query["sources"] = request.Sources;
-        }
-        if (request.NotSources != null)
-        {
-            _query["not_sources"] = request.NotSources;
-        }
-        if (request.Lang != null)
-        {
-            _query["lang"] = request.Lang;
-        }
-        if (request.NotLang != null)
-        {
-            _query["not_lang"] = request.NotLang;
-        }
-        if (request.Countries != null)
-        {
-            _query["countries"] = request.Countries;
-        }
-        if (request.NotCountries != null)
-        {
-            _query["not_countries"] = request.NotCountries;
-        }
-        if (request.NotAuthorName != null)
-        {
-            _query["not_author_name"] = request.NotAuthorName;
-        }
-        if (request.From != null)
-        {
-            _query["from_"] = request.From.Value.ToString(Constants.DateTimeFormat);
-        }
-        if (request.To != null)
-        {
-            _query["to_"] = request.To.Value.ToString(Constants.DateTimeFormat);
-        }
-        if (request.PublishedDatePrecision != null)
-        {
-            _query["published_date_precision"] = request.PublishedDatePrecision.Value.Stringify();
-        }
-        if (request.ByParseDate != null)
-        {
-            _query["by_parse_date"] = JsonUtils.Serialize(request.ByParseDate.Value);
-        }
-        if (request.SortBy != null)
-        {
-            _query["sort_by"] = request.SortBy.Value.Stringify();
-        }
-        if (request.RankedOnly != null)
-        {
-            _query["ranked_only"] = JsonUtils.Serialize(request.RankedOnly.Value);
-        }
-        if (request.FromRank != null)
-        {
-            _query["from_rank"] = request.FromRank.Value.ToString();
-        }
-        if (request.ToRank != null)
-        {
-            _query["to_rank"] = request.ToRank.Value.ToString();
-        }
-        if (request.IsHeadline != null)
-        {
-            _query["is_headline"] = JsonUtils.Serialize(request.IsHeadline.Value);
-        }
-        if (request.IsOpinion != null)
-        {
-            _query["is_opinion"] = JsonUtils.Serialize(request.IsOpinion.Value);
-        }
-        if (request.IsPaidContent != null)
-        {
-            _query["is_paid_content"] = JsonUtils.Serialize(request.IsPaidContent.Value);
-        }
-        if (request.ParentUrl != null)
-        {
-            _query["parent_url"] = request.ParentUrl;
-        }
-        if (request.AllLinks != null)
-        {
-            _query["all_links"] = request.AllLinks;
-        }
-        if (request.AllDomainLinks != null)
-        {
-            _query["all_domain_links"] = request.AllDomainLinks;
-        }
-        if (request.WordCountMin != null)
-        {
-            _query["word_count_min"] = request.WordCountMin.Value.ToString();
-        }
-        if (request.WordCountMax != null)
-        {
-            _query["word_count_max"] = request.WordCountMax.Value.ToString();
-        }
-        if (request.Page != null)
-        {
-            _query["page"] = request.Page.Value.ToString();
-        }
-        if (request.PageSize != null)
-        {
-            _query["page_size"] = request.PageSize.Value.ToString();
-        }
-        if (request.IncludeNlpData != null)
-        {
-            _query["include_nlp_data"] = JsonUtils.Serialize(request.IncludeNlpData.Value);
-        }
-        if (request.HasNlp != null)
-        {
-            _query["has_nlp"] = JsonUtils.Serialize(request.HasNlp.Value);
-        }
-        if (request.Theme != null)
-        {
-            _query["theme"] = request.Theme;
-        }
-        if (request.NotTheme != null)
-        {
-            _query["not_theme"] = request.NotTheme;
-        }
-        if (request.OrgEntityName != null)
-        {
-            _query["ORG_entity_name"] = request.OrgEntityName;
-        }
-        if (request.PerEntityName != null)
-        {
-            _query["PER_entity_name"] = request.PerEntityName;
-        }
-        if (request.LocEntityName != null)
-        {
-            _query["LOC_entity_name"] = request.LocEntityName;
-        }
-        if (request.MiscEntityName != null)
-        {
-            _query["MISC_entity_name"] = request.MiscEntityName;
-        }
-        if (request.TitleSentimentMin != null)
-        {
-            _query["title_sentiment_min"] = request.TitleSentimentMin.Value.ToString();
-        }
-        if (request.TitleSentimentMax != null)
-        {
-            _query["title_sentiment_max"] = request.TitleSentimentMax.Value.ToString();
-        }
-        if (request.ContentSentimentMin != null)
-        {
-            _query["content_sentiment_min"] = request.ContentSentimentMin.Value.ToString();
-        }
-        if (request.ContentSentimentMax != null)
-        {
-            _query["content_sentiment_max"] = request.ContentSentimentMax.Value.ToString();
-        }
-        if (request.IptcTags != null)
-        {
-            _query["iptc_tags"] = request.IptcTags;
-        }
-        if (request.NotIptcTags != null)
-        {
-            _query["not_iptc_tags"] = request.NotIptcTags;
-        }
-        if (request.RobotsCompliant != null)
-        {
-            _query["robots_compliant"] = JsonUtils.Serialize(request.RobotsCompliant.Value);
-        }
+        var _queryString = new NewscatcherApi.Core.QueryStringBuilder.Builder(capacity: 44)
+            .Add("q", request.Q)
+            .Add("aggregation_by", request.AggregationBy)
+            .Add("search_in", request.SearchIn)
+            .Add("predefined_sources", request.PredefinedSources)
+            .Add("sources", request.Sources)
+            .Add("not_sources", request.NotSources)
+            .Add("lang", request.Lang)
+            .Add("not_lang", request.NotLang)
+            .Add("countries", request.Countries)
+            .Add("not_countries", request.NotCountries)
+            .Add("not_author_name", request.NotAuthorName)
+            .AddDeepObject("from_", request.From)
+            .AddDeepObject("to_", request.To)
+            .Add("published_date_precision", request.PublishedDatePrecision)
+            .Add("by_parse_date", request.ByParseDate)
+            .Add("sort_by", request.SortBy)
+            .Add("ranked_only", request.RankedOnly)
+            .Add("from_rank", request.FromRank)
+            .Add("to_rank", request.ToRank)
+            .Add("is_headline", request.IsHeadline)
+            .Add("is_opinion", request.IsOpinion)
+            .Add("is_paid_content", request.IsPaidContent)
+            .Add("parent_url", request.ParentUrl)
+            .Add("all_links", request.AllLinks)
+            .Add("all_domain_links", request.AllDomainLinks)
+            .Add("word_count_min", request.WordCountMin)
+            .Add("word_count_max", request.WordCountMax)
+            .Add("page", request.Page)
+            .Add("page_size", request.PageSize)
+            .Add("include_nlp_data", request.IncludeNlpData)
+            .Add("has_nlp", request.HasNlp)
+            .Add("theme", request.Theme)
+            .Add("not_theme", request.NotTheme)
+            .Add("ORG_entity_name", request.OrgEntityName)
+            .Add("PER_entity_name", request.PerEntityName)
+            .Add("LOC_entity_name", request.LocEntityName)
+            .Add("MISC_entity_name", request.MiscEntityName)
+            .Add("title_sentiment_min", request.TitleSentimentMin)
+            .Add("title_sentiment_max", request.TitleSentimentMax)
+            .Add("content_sentiment_min", request.ContentSentimentMin)
+            .Add("content_sentiment_max", request.ContentSentimentMax)
+            .Add("iptc_tags", request.IptcTags)
+            .Add("not_iptc_tags", request.NotIptcTags)
+            .Add("robots_compliant", request.RobotsCompliant)
+            .MergeAdditional(options?.AdditionalQueryParameters)
+            .Build();
+        var _headers = await new NewscatcherApi.Core.HeadersBuilder.Builder()
+            .Add(_client.Options.Headers)
+            .Add(_client.Options.AdditionalHeaders)
+            .Add(options?.AdditionalHeaders)
+            .BuildAsync()
+            .ConfigureAwait(false);
         var response = await _client
             .SendRequestAsync(
                 new JsonRequest
@@ -225,7 +81,8 @@ public partial class AggregationClient
                     BaseUrl = _client.Options.BaseUrl,
                     Method = HttpMethod.Get,
                     Path = "api/aggregation_count",
-                    Query = _query,
+                    QueryString = _queryString,
+                    Headers = _headers,
                     Options = options,
                 },
                 cancellationToken
@@ -236,16 +93,32 @@ public partial class AggregationClient
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
-                return JsonUtils.Deserialize<
+                var responseData = JsonUtils.Deserialize<
                     OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
                 >(responseBody)!;
+                return new WithRawResponse<
+                    OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
+                >()
+                {
+                    Data = responseData,
+                    RawResponse = new RawResponse()
+                    {
+                        StatusCode = response.Raw.StatusCode,
+                        Url = response.Raw.RequestMessage?.RequestUri ?? new Uri("about:blank"),
+                        Headers = ResponseHeaders.FromHttpResponseMessage(response.Raw),
+                    },
+                };
             }
             catch (JsonException e)
             {
-                throw new NewscatcherApiException("Failed to deserialize response", e);
+                throw new NewscatcherApiApiException(
+                    "Failed to deserialize response",
+                    response.StatusCode,
+                    responseBody,
+                    e
+                );
             }
         }
-
         {
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
@@ -282,29 +155,20 @@ public partial class AggregationClient
         }
     }
 
-    /// <summary>
-    /// Retrieves the count of articles aggregated by day or hour based on various search criteria, such as keyword, language, country, and source.
-    /// </summary>
-    /// <example><code>
-    /// await client.Aggregation.PostAsync(
-    ///     new AggregationPostRequest
-    ///     {
-    ///         Q = "renewable energy",
-    ///         AggregationBy = AggregationBy.Day,
-    ///         PredefinedSources = "top 50 US",
-    ///         From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-    ///         To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-    ///     }
-    /// );
-    /// </code></example>
-    public async Task<
-        OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
-    > PostAsync(
+    private async Task<
+        WithRawResponse<OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>>
+    > PostAsyncCore(
         AggregationPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
+        var _headers = await new NewscatcherApi.Core.HeadersBuilder.Builder()
+            .Add(_client.Options.Headers)
+            .Add(_client.Options.AdditionalHeaders)
+            .Add(options?.AdditionalHeaders)
+            .BuildAsync()
+            .ConfigureAwait(false);
         var response = await _client
             .SendRequestAsync(
                 new JsonRequest
@@ -313,6 +177,7 @@ public partial class AggregationClient
                     Method = HttpMethod.Post,
                     Path = "api/aggregation_count",
                     Body = request,
+                    Headers = _headers,
                     ContentType = "application/json",
                     Options = options,
                 },
@@ -324,16 +189,32 @@ public partial class AggregationClient
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
-                return JsonUtils.Deserialize<
+                var responseData = JsonUtils.Deserialize<
                     OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
                 >(responseBody)!;
+                return new WithRawResponse<
+                    OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
+                >()
+                {
+                    Data = responseData,
+                    RawResponse = new RawResponse()
+                    {
+                        StatusCode = response.Raw.StatusCode,
+                        Url = response.Raw.RequestMessage?.RequestUri ?? new Uri("about:blank"),
+                        Headers = ResponseHeaders.FromHttpResponseMessage(response.Raw),
+                    },
+                };
             }
             catch (JsonException e)
             {
-                throw new NewscatcherApiException("Failed to deserialize response", e);
+                throw new NewscatcherApiApiException(
+                    "Failed to deserialize response",
+                    response.StatusCode,
+                    responseBody,
+                    e
+                );
             }
         }
-
         {
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
@@ -368,5 +249,78 @@ public partial class AggregationClient
                 responseBody
             );
         }
+    }
+
+    /// <summary>
+    /// Retrieves the count of articles aggregated by day or hour based on various search criteria, such as keyword, language, country, and source.
+    /// </summary>
+    /// <example><code>
+    /// await client.Aggregation.GetAsync(
+    ///     new AggregationGetRequest
+    ///     {
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
+    ///         SearchIn = "title_content, title_content_translated",
+    ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         Sources = "nytimes.com",
+    ///         NotSources = "cnn.com",
+    ///         Lang = "en",
+    ///         NotLang = "fr",
+    ///         Countries = "US",
+    ///         NotCountries = "UK",
+    ///         NotAuthorName = "John Doe",
+    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         ParentUrl = "https://www.washingtonpost.com/politics",
+    ///         AllLinks = "https://aiindex.stanford.edu/report",
+    ///         AllDomainLinks = "nvidia.com",
+    ///         IncludeNlpData = true,
+    ///         HasNlp = true,
+    ///         Theme = "Business,Finance",
+    ///         NotTheme = "Crime",
+    ///         OrgEntityName = "Apple",
+    ///         PerEntityName = "Elon Musk",
+    ///         LocEntityName = "California",
+    ///         MiscEntityName = "Bitcoin",
+    ///         IptcTags = "20000199,20000209",
+    ///         NotIptcTags = "20000205,20000209",
+    ///     }
+    /// );
+    /// </code></example>
+    public WithRawResponseTask<
+        OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
+    > GetAsync(
+        AggregationGetRequest request,
+        RequestOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return new WithRawResponseTask<
+            OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
+        >(GetAsyncCore(request, options, cancellationToken));
+    }
+
+    /// <summary>
+    /// Retrieves the count of articles aggregated by day or hour based on various search criteria, such as keyword, language, country, and source.
+    /// </summary>
+    /// <example><code>
+    /// await client.Aggregation.PostAsync(
+    ///     new AggregationPostRequest
+    ///     {
+    ///         Q = "\"supply chain\" AND Amazon NOT China",
+    ///         AggregationBy = AggregationBy.Day,
+    ///     }
+    /// );
+    /// </code></example>
+    public WithRawResponseTask<
+        OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
+    > PostAsync(
+        AggregationPostRequest request,
+        RequestOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return new WithRawResponseTask<
+            OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto>
+        >(PostAsyncCore(request, options, cancellationToken));
     }
 }

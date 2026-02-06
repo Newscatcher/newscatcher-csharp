@@ -1,11 +1,9 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
 
-public partial class SearchLinkClient
+public partial class SearchLinkClient : ISearchLinkClient
 {
     private RawClient _client;
 
@@ -14,53 +12,29 @@ public partial class SearchLinkClient
         _client = client;
     }
 
-    /// <summary>
-    /// Searches for articles based on specified links or IDs. You can filter results by date range.
-    /// </summary>
-    /// <example><code>
-    /// await client.SearchLink.SearchUrlGetAsync(
-    ///     new SearchUrlGetRequest
-    ///     {
-    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-    ///         To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-    ///     }
-    /// );
-    /// </code></example>
-    public async Task<SearchResponseDto> SearchUrlGetAsync(
+    private async Task<WithRawResponse<SearchResponseDto>> SearchUrlGetAsyncCore(
         SearchUrlGetRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var _query = new Dictionary<string, object>();
-        if (request.Ids != null)
-        {
-            _query["ids"] = request.Ids;
-        }
-        if (request.Links != null)
-        {
-            _query["links"] = request.Links;
-        }
-        if (request.From != null)
-        {
-            _query["from_"] = JsonUtils.Serialize(request.From);
-        }
-        if (request.To != null)
-        {
-            _query["to_"] = JsonUtils.Serialize(request.To);
-        }
-        if (request.Page != null)
-        {
-            _query["page"] = request.Page.Value.ToString();
-        }
-        if (request.PageSize != null)
-        {
-            _query["page_size"] = request.PageSize.Value.ToString();
-        }
-        if (request.RobotsCompliant != null)
-        {
-            _query["robots_compliant"] = JsonUtils.Serialize(request.RobotsCompliant.Value);
-        }
+        var _queryString = new NewscatcherApi.Core.QueryStringBuilder.Builder(capacity: 8)
+            .Add("ids", request.Ids)
+            .Add("links", request.Links)
+            .Add("_source", request.Source)
+            .AddDeepObject("from_", request.From)
+            .AddDeepObject("to_", request.To)
+            .Add("page", request.Page)
+            .Add("page_size", request.PageSize)
+            .Add("robots_compliant", request.RobotsCompliant)
+            .MergeAdditional(options?.AdditionalQueryParameters)
+            .Build();
+        var _headers = await new NewscatcherApi.Core.HeadersBuilder.Builder()
+            .Add(_client.Options.Headers)
+            .Add(_client.Options.AdditionalHeaders)
+            .Add(options?.AdditionalHeaders)
+            .BuildAsync()
+            .ConfigureAwait(false);
         var response = await _client
             .SendRequestAsync(
                 new JsonRequest
@@ -68,7 +42,8 @@ public partial class SearchLinkClient
                     BaseUrl = _client.Options.BaseUrl,
                     Method = HttpMethod.Get,
                     Path = "api/search_by_link",
-                    Query = _query,
+                    QueryString = _queryString,
+                    Headers = _headers,
                     Options = options,
                 },
                 cancellationToken
@@ -79,14 +54,28 @@ public partial class SearchLinkClient
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
-                return JsonUtils.Deserialize<SearchResponseDto>(responseBody)!;
+                var responseData = JsonUtils.Deserialize<SearchResponseDto>(responseBody)!;
+                return new WithRawResponse<SearchResponseDto>()
+                {
+                    Data = responseData,
+                    RawResponse = new RawResponse()
+                    {
+                        StatusCode = response.Raw.StatusCode,
+                        Url = response.Raw.RequestMessage?.RequestUri ?? new Uri("about:blank"),
+                        Headers = ResponseHeaders.FromHttpResponseMessage(response.Raw),
+                    },
+                };
             }
             catch (JsonException e)
             {
-                throw new NewscatcherApiException("Failed to deserialize response", e);
+                throw new NewscatcherApiApiException(
+                    "Failed to deserialize response",
+                    response.StatusCode,
+                    responseBody,
+                    e
+                );
             }
         }
-
         {
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
@@ -123,32 +112,18 @@ public partial class SearchLinkClient
         }
     }
 
-    /// <summary>
-    /// Searches for articles using their ID(s) or link(s).
-    /// </summary>
-    /// <example><code>
-    /// await client.SearchLink.SearchUrlPostAsync(
-    ///     new SearchUrlPostRequest
-    ///     {
-    ///         Ids = new List&lt;string&gt;()
-    ///         {
-    ///             "8ea8a784568ffaa05cb6d1ab2d2e84dd",
-    ///             "0146a551ef05ab1c494a55e806e3ce64",
-    ///         },
-    ///         Links = new List&lt;string&gt;()
-    ///         {
-    ///             "https://www.nytimes.com/2024/08/30/technology/ai-chatbot-chatgpt-manipulation.html",
-    ///             "https://www.bbc.com/news/articles/c39k379grzlo",
-    ///         },
-    ///     }
-    /// );
-    /// </code></example>
-    public async Task<SearchResponseDto> SearchUrlPostAsync(
+    private async Task<WithRawResponse<SearchResponseDto>> SearchUrlPostAsyncCore(
         SearchUrlPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
+        var _headers = await new NewscatcherApi.Core.HeadersBuilder.Builder()
+            .Add(_client.Options.Headers)
+            .Add(_client.Options.AdditionalHeaders)
+            .Add(options?.AdditionalHeaders)
+            .BuildAsync()
+            .ConfigureAwait(false);
         var response = await _client
             .SendRequestAsync(
                 new JsonRequest
@@ -157,6 +132,7 @@ public partial class SearchLinkClient
                     Method = HttpMethod.Post,
                     Path = "api/search_by_link",
                     Body = request,
+                    Headers = _headers,
                     ContentType = "application/json",
                     Options = options,
                 },
@@ -168,14 +144,28 @@ public partial class SearchLinkClient
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
-                return JsonUtils.Deserialize<SearchResponseDto>(responseBody)!;
+                var responseData = JsonUtils.Deserialize<SearchResponseDto>(responseBody)!;
+                return new WithRawResponse<SearchResponseDto>()
+                {
+                    Data = responseData,
+                    RawResponse = new RawResponse()
+                    {
+                        StatusCode = response.Raw.StatusCode,
+                        Url = response.Raw.RequestMessage?.RequestUri ?? new Uri("about:blank"),
+                        Headers = ResponseHeaders.FromHttpResponseMessage(response.Raw),
+                    },
+                };
             }
             catch (JsonException e)
             {
-                throw new NewscatcherApiException("Failed to deserialize response", e);
+                throw new NewscatcherApiApiException(
+                    "Failed to deserialize response",
+                    response.StatusCode,
+                    responseBody,
+                    e
+                );
             }
         }
-
         {
             var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
@@ -210,5 +200,55 @@ public partial class SearchLinkClient
                 responseBody
             );
         }
+    }
+
+    /// <summary>
+    /// Searches for articles based on specified links or IDs. You can filter results by date range.
+    /// </summary>
+    /// <example><code>
+    /// await client.SearchLink.SearchUrlGetAsync(
+    ///     new SearchUrlGetRequest
+    ///     {
+    ///         Ids = "5f8d0d55b6e45e00179c6e7e",
+    ///         Links = "https://nytimes.com/article1",
+    ///         Source = "articles.id,articles.title,articles.link,articles.published_date",
+    ///         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+    ///         To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+    ///     }
+    /// );
+    /// </code></example>
+    public WithRawResponseTask<SearchResponseDto> SearchUrlGetAsync(
+        SearchUrlGetRequest request,
+        RequestOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return new WithRawResponseTask<SearchResponseDto>(
+            SearchUrlGetAsyncCore(request, options, cancellationToken)
+        );
+    }
+
+    /// <summary>
+    /// Searches for articles using their ID(s) or link(s).
+    /// </summary>
+    /// <example><code>
+    /// await client.SearchLink.SearchUrlPostAsync(
+    ///     new SearchUrlPostRequest
+    ///     {
+    ///         Links =
+    ///             "https://www.reuters.com/business/energy/oil-prices-up-after-israeli-attacks-oversupply-caps-gains-2025-09-10/",
+    ///         Source = "articles.id,articles.title,articles.link,articles.canonical_url",
+    ///     }
+    /// );
+    /// </code></example>
+    public WithRawResponseTask<SearchResponseDto> SearchUrlPostAsync(
+        SearchUrlPostRequest request,
+        RequestOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return new WithRawResponseTask<SearchResponseDto>(
+            SearchUrlPostAsyncCore(request, options, cancellationToken)
+        );
     }
 }
