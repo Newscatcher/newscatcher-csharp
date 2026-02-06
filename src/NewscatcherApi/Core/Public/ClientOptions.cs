@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Net.Http;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -80,6 +78,7 @@ public partial class ClientOptions
             MaxRetries = MaxRetries,
             Timeout = Timeout,
             Headers = new Headers(new Dictionary<string, HeaderValue>(Headers)),
+            AdditionalHeaders = AdditionalHeaders,
         };
     }
 }
