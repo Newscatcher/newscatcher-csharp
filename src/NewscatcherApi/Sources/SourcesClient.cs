@@ -1,88 +1,51 @@
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
 
-public partial class SourcesClient
+public partial class SourcesClient : ISourcesClient
 {
-    private RawClient _client;
+    private readonly RawClient _client;
 
     internal SourcesClient(RawClient client)
     {
         _client = client;
     }
 
-    /// <summary>
-    /// Retrieves a list of sources based on specified criteria such as language, country, rank, and more.
-    /// </summary>
-    /// <example><code>
-    /// await client.Sources.GetAsync(
-    ///     new SourcesGetRequest { PredefinedSources = "top 100 US, top 5 GB", SourceUrl = "bbc.com" }
-    /// );
-    /// </code></example>
-    public async Task<SourcesResponseDto> GetAsync(
+    private async Task<WithRawResponse<SourcesResponseDto>> GetAsyncCore(
         SourcesGetRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
-        var _query = new Dictionary<string, object>();
-        if (request.Lang != null)
-        {
-            _query["lang"] = request.Lang;
-        }
-        if (request.Countries != null)
-        {
-            _query["countries"] = request.Countries;
-        }
-        if (request.PredefinedSources != null)
-        {
-            _query["predefined_sources"] = request.PredefinedSources;
-        }
-        if (request.SourceName != null)
-        {
-            _query["source_name"] = request.SourceName;
-        }
-        if (request.SourceUrl != null)
-        {
-            _query["source_url"] = request.SourceUrl;
-        }
-        if (request.IncludeAdditionalInfo != null)
-        {
-            _query["include_additional_info"] = JsonUtils.Serialize(
-                request.IncludeAdditionalInfo.Value
-            );
-        }
-        if (request.IsNewsDomain != null)
-        {
-            _query["is_news_domain"] = JsonUtils.Serialize(request.IsNewsDomain.Value);
-        }
-        if (request.NewsDomainType != null)
-        {
-            _query["news_domain_type"] = request.NewsDomainType.Value.Stringify();
-        }
-        if (request.NewsType != null)
-        {
-            _query["news_type"] = request.NewsType;
-        }
-        if (request.FromRank != null)
-        {
-            _query["from_rank"] = request.FromRank.Value.ToString();
-        }
-        if (request.ToRank != null)
-        {
-            _query["to_rank"] = request.ToRank.Value.ToString();
-        }
+        var _queryString = new NewscatcherApi.Core.QueryStringBuilder.Builder(capacity: 11)
+            .Add("lang", request.Lang)
+            .Add("countries", request.Countries)
+            .Add("predefined_sources", request.PredefinedSources)
+            .Add("source_name", request.SourceName)
+            .Add("source_url", request.SourceUrl)
+            .Add("include_additional_info", request.IncludeAdditionalInfo)
+            .Add("is_news_domain", request.IsNewsDomain)
+            .Add("news_domain_type", request.NewsDomainType)
+            .Add("news_type", request.NewsType)
+            .Add("from_rank", request.FromRank)
+            .Add("to_rank", request.ToRank)
+            .MergeAdditional(options?.AdditionalQueryParameters)
+            .Build();
+        var _headers = await new NewscatcherApi.Core.HeadersBuilder.Builder()
+            .Add(_client.Options.Headers)
+            .Add(_client.Options.AdditionalHeaders)
+            .Add(options?.AdditionalHeaders)
+            .BuildAsync()
+            .ConfigureAwait(false);
         var response = await _client
             .SendRequestAsync(
                 new JsonRequest
                 {
-                    BaseUrl = _client.Options.BaseUrl,
                     Method = HttpMethod.Get,
                     Path = "api/sources",
-                    Query = _query,
+                    QueryString = _queryString,
+                    Headers = _headers,
                     Options = options,
                 },
                 cancellationToken
@@ -90,19 +53,37 @@ public partial class SourcesClient
             .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
-            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            var responseBody = await response
+                .Raw.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
             try
             {
-                return JsonUtils.Deserialize<SourcesResponseDto>(responseBody)!;
+                var responseData = JsonUtils.Deserialize<SourcesResponseDto>(responseBody)!;
+                return new WithRawResponse<SourcesResponseDto>()
+                {
+                    Data = responseData,
+                    RawResponse = new RawResponse()
+                    {
+                        StatusCode = response.Raw.StatusCode,
+                        Url = response.Raw.RequestMessage?.RequestUri ?? new Uri("about:blank"),
+                        Headers = ResponseHeaders.FromHttpResponseMessage(response.Raw),
+                    },
+                };
             }
             catch (JsonException e)
             {
-                throw new NewscatcherApiException("Failed to deserialize response", e);
+                throw new NewscatcherApiApiException(
+                    "Failed to deserialize response",
+                    response.StatusCode,
+                    responseBody,
+                    e
+                );
             }
         }
-
         {
-            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            var responseBody = await response
+                .Raw.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
             try
             {
                 switch (response.StatusCode)
@@ -137,35 +118,26 @@ public partial class SourcesClient
         }
     }
 
-    /// <summary>
-    /// Retrieves the list of sources available in the database. You can filter the sources by language, country, and more.
-    /// </summary>
-    /// <example><code>
-    /// await client.Sources.PostAsync(
-    ///     new SourcesPostRequest
-    ///     {
-    ///         PredefinedSources = new List&lt;string&gt;() { "top 50 US" },
-    ///         IncludeAdditionalInfo = true,
-    ///         IsNewsDomain = true,
-    ///         NewsDomainType = NewsDomainType.OriginalContent,
-    ///         NewsType = "General News Outlets",
-    ///     }
-    /// );
-    /// </code></example>
-    public async Task<SourcesResponseDto> PostAsync(
+    private async Task<WithRawResponse<SourcesResponseDto>> PostAsyncCore(
         SourcesPostRequest request,
         RequestOptions? options = null,
         CancellationToken cancellationToken = default
     )
     {
+        var _headers = await new NewscatcherApi.Core.HeadersBuilder.Builder()
+            .Add(_client.Options.Headers)
+            .Add(_client.Options.AdditionalHeaders)
+            .Add(options?.AdditionalHeaders)
+            .BuildAsync()
+            .ConfigureAwait(false);
         var response = await _client
             .SendRequestAsync(
                 new JsonRequest
                 {
-                    BaseUrl = _client.Options.BaseUrl,
                     Method = HttpMethod.Post,
                     Path = "api/sources",
                     Body = request,
+                    Headers = _headers,
                     ContentType = "application/json",
                     Options = options,
                 },
@@ -174,19 +146,37 @@ public partial class SourcesClient
             .ConfigureAwait(false);
         if (response.StatusCode is >= 200 and < 400)
         {
-            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            var responseBody = await response
+                .Raw.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
             try
             {
-                return JsonUtils.Deserialize<SourcesResponseDto>(responseBody)!;
+                var responseData = JsonUtils.Deserialize<SourcesResponseDto>(responseBody)!;
+                return new WithRawResponse<SourcesResponseDto>()
+                {
+                    Data = responseData,
+                    RawResponse = new RawResponse()
+                    {
+                        StatusCode = response.Raw.StatusCode,
+                        Url = response.Raw.RequestMessage?.RequestUri ?? new Uri("about:blank"),
+                        Headers = ResponseHeaders.FromHttpResponseMessage(response.Raw),
+                    },
+                };
             }
             catch (JsonException e)
             {
-                throw new NewscatcherApiException("Failed to deserialize response", e);
+                throw new NewscatcherApiApiException(
+                    "Failed to deserialize response",
+                    response.StatusCode,
+                    responseBody,
+                    e
+                );
             }
         }
-
         {
-            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            var responseBody = await response
+                .Raw.Content.ReadAsStringAsync(cancellationToken)
+                .ConfigureAwait(false);
             try
             {
                 switch (response.StatusCode)
@@ -219,5 +209,49 @@ public partial class SourcesClient
                 responseBody
             );
         }
+    }
+
+    /// <summary>
+    /// Retrieves a list of sources based on specified criteria such as language, country, rank, and more.
+    /// </summary>
+    /// <example><code>
+    /// await client.Sources.GetAsync(
+    ///     new SourcesGetRequest
+    ///     {
+    ///         Lang = "en",
+    ///         Countries = "US",
+    ///         PredefinedSources = "top 100 US, top 5 GB",
+    ///         SourceName = "sport",
+    ///         SourceUrl = "bbc.com",
+    ///         NewsType = "General News Outlets",
+    ///     }
+    /// );
+    /// </code></example>
+    public WithRawResponseTask<SourcesResponseDto> GetAsync(
+        SourcesGetRequest request,
+        RequestOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return new WithRawResponseTask<SourcesResponseDto>(
+            GetAsyncCore(request, options, cancellationToken)
+        );
+    }
+
+    /// <summary>
+    /// Retrieves the list of sources available in the database. You can filter the sources by language, country, and more.
+    /// </summary>
+    /// <example><code>
+    /// await client.Sources.PostAsync(new SourcesPostRequest { PredefinedSources = "top 10 US" });
+    /// </code></example>
+    public WithRawResponseTask<SourcesResponseDto> PostAsync(
+        SourcesPostRequest request,
+        RequestOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return new WithRawResponseTask<SourcesResponseDto>(
+            PostAsyncCore(request, options, cancellationToken)
+        );
     }
 }

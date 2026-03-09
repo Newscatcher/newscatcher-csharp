@@ -145,7 +145,7 @@ public class RetriesTests
             .WillSetStateTo("Server Error")
             .RespondWith(WireMockResponse.Create().WithStatusCode(429).WithBody("Failure"));
 
-        var request = new MultipartFormRequest
+        var request = new NewscatcherApi.Core.MultipartFormRequest
         {
             BaseUrl = _baseUrl,
             Method = HttpMethod.Post,
@@ -186,7 +186,7 @@ public class RetriesTests
             .WhenStateIs("Success")
             .RespondWith(WireMockResponse.Create().WithStatusCode(200).WithBody("Success"));
 
-        var request = new MultipartFormRequest
+        var request = new NewscatcherApi.Core.MultipartFormRequest
         {
             BaseUrl = _baseUrl,
             Method = HttpMethod.Post,
@@ -203,6 +203,197 @@ public class RetriesTests
             Assert.That(content, Is.EqualTo("Success"));
             Assert.That(_server.LogEntries, Has.Count.EqualTo(MaxRetries));
         });
+    }
+
+    [Test]
+    public async SystemTask SendRequestAsync_ShouldRespectRetryAfterHeader_WithSecondsValue()
+    {
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingGet())
+            .InScenario("RetryAfter")
+            .WillSetStateTo("Success")
+            .RespondWith(
+                WireMockResponse.Create().WithStatusCode(429).WithHeader("Retry-After", "1")
+            );
+
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingGet())
+            .InScenario("RetryAfter")
+            .WhenStateIs("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(200).WithBody("Success"));
+
+        var request = new EmptyRequest
+        {
+            BaseUrl = _baseUrl,
+            Method = HttpMethod.Get,
+            Path = "/test",
+        };
+
+        var response = await _rawClient.SendRequestAsync(request);
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+
+        var content = await response.Raw.Content.ReadAsStringAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(content, Is.EqualTo("Success"));
+            Assert.That(_server.LogEntries, Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async SystemTask SendRequestAsync_ShouldRespectRetryAfterHeader_WithHttpDateValue()
+    {
+        var retryAfterDate = DateTimeOffset.UtcNow.AddSeconds(1).ToString("R");
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingGet())
+            .InScenario("RetryAfterDate")
+            .WillSetStateTo("Success")
+            .RespondWith(
+                WireMockResponse
+                    .Create()
+                    .WithStatusCode(429)
+                    .WithHeader("Retry-After", retryAfterDate)
+            );
+
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingGet())
+            .InScenario("RetryAfterDate")
+            .WhenStateIs("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(200).WithBody("Success"));
+
+        var request = new EmptyRequest
+        {
+            BaseUrl = _baseUrl,
+            Method = HttpMethod.Get,
+            Path = "/test",
+        };
+
+        var response = await _rawClient.SendRequestAsync(request);
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+
+        var content = await response.Raw.Content.ReadAsStringAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(content, Is.EqualTo("Success"));
+            Assert.That(_server.LogEntries, Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async SystemTask SendRequestAsync_ShouldRespectXRateLimitResetHeader()
+    {
+        var resetTime = DateTimeOffset.UtcNow.AddSeconds(1).ToUnixTimeSeconds().ToString();
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingGet())
+            .InScenario("RateLimitReset")
+            .WillSetStateTo("Success")
+            .RespondWith(
+                WireMockResponse
+                    .Create()
+                    .WithStatusCode(429)
+                    .WithHeader("X-RateLimit-Reset", resetTime)
+            );
+
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingGet())
+            .InScenario("RateLimitReset")
+            .WhenStateIs("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(200).WithBody("Success"));
+
+        var request = new EmptyRequest
+        {
+            BaseUrl = _baseUrl,
+            Method = HttpMethod.Get,
+            Path = "/test",
+        };
+
+        var response = await _rawClient.SendRequestAsync(request);
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+
+        var content = await response.Raw.Content.ReadAsStringAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(content, Is.EqualTo("Success"));
+            Assert.That(_server.LogEntries, Has.Count.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async SystemTask SendRequestAsync_ShouldPreserveJsonBody_OnRetry()
+    {
+        const string expectedBody = """{"key":"value"}""";
+
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingPost())
+            .InScenario("RetryWithBody")
+            .WillSetStateTo("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(500));
+
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingPost())
+            .InScenario("RetryWithBody")
+            .WhenStateIs("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(200).WithBody("Success"));
+
+        var request = new JsonRequest
+        {
+            BaseUrl = _baseUrl,
+            Method = HttpMethod.Post,
+            Path = "/test",
+            Body = new { key = "value" },
+        };
+
+        var response = await _rawClient.SendRequestAsync(request);
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+
+        var content = await response.Raw.Content.ReadAsStringAsync();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(content, Is.EqualTo("Success"));
+            Assert.That(_server.LogEntries, Has.Count.EqualTo(2));
+
+            // Verify the retried request preserved the JSON body
+            var retriedEntry = _server.LogEntries.ElementAt(1);
+            Assert.That(retriedEntry.RequestMessage.Body, Is.EqualTo(expectedBody));
+        }
+    }
+
+    [Test]
+    public async SystemTask SendRequestAsync_ShouldPreserveMultipartBody_OnRetry()
+    {
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingPost())
+            .InScenario("RetryMultipart")
+            .WillSetStateTo("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(500));
+
+        _server
+            .Given(WireMockRequest.Create().WithPath("/test").UsingPost())
+            .InScenario("RetryMultipart")
+            .WhenStateIs("Success")
+            .RespondWith(WireMockResponse.Create().WithStatusCode(200).WithBody("Success"));
+
+        var request = new NewscatcherApi.Core.MultipartFormRequest
+        {
+            BaseUrl = _baseUrl,
+            Method = HttpMethod.Post,
+            Path = "/test",
+        };
+        request.AddJsonPart("object", new { key = "value" });
+
+        var response = await _rawClient.SendRequestAsync(request);
+        Assert.That(response.StatusCode, Is.EqualTo(200));
+
+        var content = await response.Raw.Content.ReadAsStringAsync();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(content, Is.EqualTo("Success"));
+            Assert.That(_server.LogEntries, Has.Count.EqualTo(2));
+
+            // Verify the retried request preserved the multipart body
+            var retriedEntry = _server.LogEntries.ElementAt(1);
+            Assert.That(retriedEntry.RequestMessage.Body, Does.Contain("""{"key":"value"}"""));
+        }
     }
 
     [TearDown]
