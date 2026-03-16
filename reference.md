@@ -1,6 +1,6 @@
 # Reference
 ## Search
-<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">GetAsync</a>(SearchGetRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
+<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">GetAsync</a>(SearchGetRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;SearchResponseDto, ClusteredSearchResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -12,7 +12,7 @@
 <dl>
 <dd>
 
-Searches for articles based on specified criteria such as keyword, language, country, source, and more.
+Searches for articles based on specified criteria such as keywords, language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -30,21 +30,60 @@ Searches for articles based on specified criteria such as keyword, language, cou
 await client.Search.GetAsync(
     new SearchGetRequest
     {
-        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        Q = "\"supply chain\" AND Amazon NOT China",
         SearchIn = "title_content, title_content_translated",
         IncludeTranslationFields = true,
-        PredefinedSources = "top 100 US, top 5 GB",
+        PredefinedSources = "top 50 US, top 20 GB",
+        SourceName = "sport,tech",
+        Sources = "nytimes.com,finance.yahoo.com",
+        NotSources = "cnn.com,wsj.com",
+        Lang = "en,es",
+        NotLang = "fr,de",
+        Countries = "US,CA",
+        NotCountries = "UK,FR",
+        NotAuthorName = "John Doe, Jane Doe",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        PublishedDatePrecision = "full",
+        ByParseDate = true,
+        RankedOnly = true,
+        FromRank = 100,
+        ToRank = 100,
+        IsHeadline = true,
+        IsOpinion = true,
+        IsPaidContent = false,
+        ParentUrl = "wsj.com/politics,wsj.com/tech",
+        AllLinks = "https://aiindex.stanford.edu/report,https://www.stateof.ai",
+        AllDomainLinks = "who.int,nih.gov",
+        AllLinksText = "Nvidia,Tesla",
+        AdditionalDomainInfo = true,
+        IsNewsDomain = true,
+        NewsType = "General News Outlets,Tech News and Updates",
+        WordCountMin = 300,
+        WordCountMax = 1000,
+        Page = 2,
+        PageSize = 50,
+        ClusteringEnabled = true,
+        ClusteringThreshold = 0.6f,
         IncludeNlpData = true,
         HasNlp = true,
-        Theme = "Business,Finance",
-        NotTheme = "Crime",
+        Theme = "Finance,Tech",
+        NotTheme = "Crime,Sports",
+        OrgEntityName = "\"Apple Inc\" OR Microsoft",
+        PerEntityName = "\"Elon Musk\" OR \"Jeff Bezos\"",
+        LocEntityName = "\"San Francisco\" OR \"New York City\"",
+        MiscEntityName = "AWS OR \"Microsoft Azure\"",
+        TitleSentimentMin = -0.5f,
+        TitleSentimentMax = 0.5f,
+        ContentSentimentMin = -0.5f,
+        ContentSentimentMax = 0.5f,
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
         IabTags = "Business,Events",
         NotIabTags = "Agriculture,Metals",
-        CustomTags = "Tag1,Tag2,Tag3",
+        CustomTags = "Tag1,Tag2",
+        ExcludeDuplicates = true,
+        RobotsCompliant = true,
     }
 );
 ```
@@ -73,7 +112,7 @@ await client.Search.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">PostAsync</a>(SearchPostRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
+<details><summary><code>client.Search.<a href="/src/NewscatcherApi/Search/SearchClient.cs">PostAsync</a>(SearchPostRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;SearchResponseDto, ClusteredSearchResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -85,7 +124,7 @@ await client.Search.GetAsync(
 <dl>
 <dd>
 
-Searches for articles based on specified criteria such as keyword, language, country, source, and more.
+Searches for articles based on specified criteria such as keywords, language, country, source, and more.
 </dd>
 </dl>
 </dd>
@@ -101,16 +140,7 @@ Searches for articles based on specified criteria such as keyword, language, cou
 
 ```csharp
 await client.Search.PostAsync(
-    new SearchPostRequest
-    {
-        Q = "renewable energy",
-        PredefinedSources = new List<string>() { "top 50 US" },
-        Lang = new List<string>() { "en" },
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-        AdditionalDomainInfo = true,
-        IsNewsDomain = true,
-    }
+    new SearchPostRequest { Q = "\"supply chain\" AND Amazon NOT China", PageSize = 1 }
 );
 ```
 </dd>
@@ -139,7 +169,7 @@ await client.Search.PostAsync(
 </details>
 
 ## LatestHeadlines
-<details><summary><code>client.Latestheadlines.<a href="/src/NewscatcherApi/Latestheadlines/LatestheadlinesClient.cs">GetAsync</a>(LatestHeadlinesGetRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
+<details><summary><code>client.LatestHeadlines.<a href="/src/NewscatcherApi/LatestHeadlines/LatestHeadlinesClient.cs">LatestHeadlinesGetAsync</a>(LatestHeadlinesGetRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;SearchResponseDto, ClusteredSearchResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -166,20 +196,52 @@ Retrieves the latest headlines for the specified time period. You can filter res
 <dd>
 
 ```csharp
-await client.Latestheadlines.GetAsync(
+await client.LatestHeadlines.LatestHeadlinesGetAsync(
     new LatestHeadlinesGetRequest
     {
-        PredefinedSources = "top 100 US, top 5 GB",
+        When = "7d",
+        ByParseDate = true,
+        Lang = "en,es",
+        NotLang = "fr,de",
+        Countries = "US,CA",
+        NotCountries = "UK,FR",
+        PredefinedSources = "top 50 US, top 20 GB",
+        Sources = "nytimes.com,finance.yahoo.com",
+        NotSources = "cnn.com,wsj.com",
+        NotAuthorName = "John Doe, Jane Doe",
+        RankedOnly = true,
+        IsHeadline = true,
+        IsOpinion = true,
+        IsPaidContent = false,
+        ParentUrl = "wsj.com/politics,wsj.com/tech",
+        AllLinks = "https://aiindex.stanford.edu/report,https://www.stateof.ai",
+        AllDomainLinks = "who.int,nih.gov",
+        AllLinksText = "Nvidia,Tesla",
+        WordCountMin = 300,
+        WordCountMax = 1000,
+        Page = 2,
+        PageSize = 50,
+        ClusteringEnabled = true,
+        ClusteringThreshold = 0.6f,
         IncludeTranslationFields = true,
         IncludeNlpData = true,
         HasNlp = true,
-        Theme = "Business,Finance",
-        NotTheme = "Crime",
+        Theme = "Finance,Tech",
+        NotTheme = "Crime,Sports",
+        OrgEntityName = "\"Apple Inc\" OR Microsoft",
+        PerEntityName = "\"Elon Musk\" OR \"Jeff Bezos\"",
+        LocEntityName = "\"San Francisco\" OR \"New York City\"",
+        MiscEntityName = "AWS OR \"Microsoft Azure\"",
+        TitleSentimentMin = -0.5f,
+        TitleSentimentMax = 0.5f,
+        ContentSentimentMin = -0.5f,
+        ContentSentimentMax = 0.5f,
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
         IabTags = "Business,Events",
         NotIabTags = "Agriculture,Metals",
-        CustomTags = "Tag1,Tag2,Tag3",
+        CustomTags = "Tag1,Tag2",
+        RobotsCompliant = true,
     }
 );
 ```
@@ -208,7 +270,7 @@ await client.Latestheadlines.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Latestheadlines.<a href="/src/NewscatcherApi/Latestheadlines/LatestheadlinesClient.cs">PostAsync</a>(LatestHeadlinesPostRequest { ... }) -> OneOf<SearchResponseDto, ClusteredSearchResponseDto></code></summary>
+<details><summary><code>client.LatestHeadlines.<a href="/src/NewscatcherApi/LatestHeadlines/LatestHeadlinesClient.cs">LatestHeadlinesPostAsync</a>(LatestHeadlinesPostRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;SearchResponseDto, ClusteredSearchResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -235,14 +297,8 @@ Retrieves the latest headlines for the specified time period. You can filter res
 <dd>
 
 ```csharp
-await client.Latestheadlines.PostAsync(
-    new LatestHeadlinesPostRequest
-    {
-        Lang = "en",
-        PredefinedSources = new List<string>() { "top 50 US", "top 20 GB" },
-        IsOpinion = false,
-        PageSize = 10,
-    }
+await client.LatestHeadlines.LatestHeadlinesPostAsync(
+    new LatestHeadlinesPostRequest { When = "7d", PageSize = 1 }
 );
 ```
 </dd>
@@ -270,8 +326,8 @@ await client.Latestheadlines.PostAsync(
 </dl>
 </details>
 
-## Breaking News
-<details><summary><code>client.BreakingNews.<a href="/src/NewscatcherApi/BreakingNews/BreakingNewsClient.cs">BreakingNewsGetAsync</a>(BreakingNewsGetRequest { ... }) -> BreakingNewsResponseDto</code></summary>
+## BreakingNews
+<details><summary><code>client.BreakingNews.<a href="/src/NewscatcherApi/BreakingNews/BreakingNewsClient.cs">BreakingNewsGetAsync</a>(BreakingNewsGetRequest { ... }) -> WithRawResponseTask&lt;BreakingNewsResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -301,12 +357,25 @@ Retrieves breaking news articles and sorts them based on specified criteria.
 await client.BreakingNews.BreakingNewsGetAsync(
     new BreakingNewsGetRequest
     {
+        RankedOnly = true,
+        FromRank = 100,
+        ToRank = 100,
+        Page = 2,
+        PageSize = 50,
         TopNArticles = 5,
         IncludeTranslationFields = true,
         IncludeNlpData = true,
         HasNlp = true,
-        Theme = "Business,Finance",
-        NotTheme = "Crime",
+        Theme = "Finance,Tech",
+        NotTheme = "Crime,Sports",
+        OrgEntityName = "\"Apple Inc\" OR Microsoft",
+        PerEntityName = "\"Elon Musk\" OR \"Jeff Bezos\"",
+        LocEntityName = "\"San Francisco\" OR \"New York City\"",
+        MiscEntityName = "AWS OR \"Microsoft Azure\"",
+        TitleSentimentMin = -0.5f,
+        TitleSentimentMax = 0.5f,
+        ContentSentimentMin = -0.5f,
+        ContentSentimentMax = 0.5f,
     }
 );
 ```
@@ -335,7 +404,7 @@ await client.BreakingNews.BreakingNewsGetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.BreakingNews.<a href="/src/NewscatcherApi/BreakingNews/BreakingNewsClient.cs">BreakingNewsPostAsync</a>(BreakingNewsPostRequest { ... }) -> BreakingNewsResponseDto</code></summary>
+<details><summary><code>client.BreakingNews.<a href="/src/NewscatcherApi/BreakingNews/BreakingNewsClient.cs">BreakingNewsPostAsync</a>(BreakingNewsPostRequest { ... }) -> WithRawResponseTask&lt;BreakingNewsResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -366,9 +435,8 @@ await client.BreakingNews.BreakingNewsPostAsync(
     new BreakingNewsPostRequest
     {
         SortBy = SortBy.Relevancy,
-        Page = 1,
-        PageSize = 100,
-        IncludeNlpData = true,
+        RankedOnly = true,
+        TopNArticles = 1,
     }
 );
 ```
@@ -398,7 +466,7 @@ await client.BreakingNews.BreakingNewsPostAsync(
 </details>
 
 ## Authors
-<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">GetAsync</a>(AuthorsGetRequest { ... }) -> OneOf<SearchResponseDto, FailedAuthorsResponseDto></code></summary>
+<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">GetAsync</a>(AuthorsGetRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;SearchResponseDto, FailedAuthorsResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -429,20 +497,48 @@ await client.Authors.GetAsync(
     new AuthorsGetRequest
     {
         AuthorName = "Jane Smith",
-        PredefinedSources = "top 100 US, top 5 GB",
+        NotAuthorName = "John Doe, Jane Doe",
+        PredefinedSources = "top 50 US, top 20 GB",
+        Sources = "nytimes.com,finance.yahoo.com",
+        NotSources = "cnn.com,wsj.com",
+        Lang = "en,es",
+        NotLang = "fr,de",
+        Countries = "US,CA",
+        NotCountries = "UK,FR",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        PublishedDatePrecision = "full",
+        ByParseDate = true,
+        RankedOnly = true,
+        FromRank = 100,
+        ToRank = 100,
+        IsHeadline = true,
+        IsOpinion = true,
+        IsPaidContent = false,
+        ParentUrl = "wsj.com/politics,wsj.com/tech",
+        AllLinks = "https://aiindex.stanford.edu/report,https://www.stateof.ai",
+        AllDomainLinks = "who.int,nih.gov",
+        AllLinksText = "Nvidia,Tesla",
+        WordCountMin = 300,
+        WordCountMax = 1000,
+        Page = 2,
+        PageSize = 50,
         IncludeTranslationFields = true,
         IncludeNlpData = true,
         HasNlp = true,
-        Theme = "Business,Finance",
-        NotTheme = "Crime",
-        NerName = "Tesla",
+        Theme = "Finance,Tech",
+        NotTheme = "Crime,Sports",
+        NerName = "Tesla,Amazon",
+        TitleSentimentMin = -0.5f,
+        TitleSentimentMax = 0.5f,
+        ContentSentimentMin = -0.5f,
+        ContentSentimentMax = 0.5f,
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
         IabTags = "Business,Events",
         NotIabTags = "Agriculture,Metals",
-        CustomTags = "Tag1,Tag2,Tag3",
+        CustomTags = "Tag1,Tag2",
+        RobotsCompliant = true,
     }
 );
 ```
@@ -471,7 +567,7 @@ await client.Authors.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">PostAsync</a>(AuthorsPostRequest { ... }) -> OneOf<SearchResponseDto, FailedAuthorsResponseDto></code></summary>
+<details><summary><code>client.Authors.<a href="/src/NewscatcherApi/Authors/AuthorsClient.cs">PostAsync</a>(AuthorsPostRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;SearchResponseDto, FailedAuthorsResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -498,16 +594,7 @@ Searches for articles by author. You can filter results by language, country, so
 <dd>
 
 ```csharp
-await client.Authors.PostAsync(
-    new AuthorsPostRequest
-    {
-        AuthorName = "Joanna Stern",
-        Sources = new List<string>() { "wsj.com", "nytimes.com" },
-        Lang = "en",
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-    }
-);
+await client.Authors.PostAsync(new AuthorsPostRequest { AuthorName = "David Muir" });
 ```
 </dd>
 </dl>
@@ -534,8 +621,8 @@ await client.Authors.PostAsync(
 </dl>
 </details>
 
-## SearchLink
-<details><summary><code>client.SearchLink.<a href="/src/NewscatcherApi/SearchLink/SearchLinkClient.cs">SearchUrlGetAsync</a>(SearchUrlGetRequest { ... }) -> SearchResponseDto</code></summary>
+## SearchByLink
+<details><summary><code>client.SearchByLink.<a href="/src/NewscatcherApi/SearchByLink/SearchByLinkClient.cs">SearchByLinkGetAsync</a>(SearchByLinkGetRequest { ... }) -> WithRawResponseTask&lt;SearchResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -562,11 +649,16 @@ Searches for articles based on specified links or IDs. You can filter results by
 <dd>
 
 ```csharp
-await client.SearchLink.SearchUrlGetAsync(
-    new SearchUrlGetRequest
+await client.SearchByLink.SearchByLinkGetAsync(
+    new SearchByLinkGetRequest
     {
+        Ids = "5f8d0d55b6e45e00179c6e7e",
+        Links = "https://nytimes.com/article1,https://bbc.com/article2",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
         To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        Page = 2,
+        PageSize = 50,
+        RobotsCompliant = true,
     }
 );
 ```
@@ -583,7 +675,7 @@ await client.SearchLink.SearchUrlGetAsync(
 <dl>
 <dd>
 
-**request:** `SearchUrlGetRequest` 
+**request:** `SearchByLinkGetRequest` 
     
 </dd>
 </dl>
@@ -595,7 +687,7 @@ await client.SearchLink.SearchUrlGetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.SearchLink.<a href="/src/NewscatcherApi/SearchLink/SearchLinkClient.cs">SearchUrlPostAsync</a>(SearchUrlPostRequest { ... }) -> SearchResponseDto</code></summary>
+<details><summary><code>client.SearchByLink.<a href="/src/NewscatcherApi/SearchByLink/SearchByLinkClient.cs">SearchByLinkPostAsync</a>(SearchByLinkPostRequest { ... }) -> WithRawResponseTask&lt;SearchResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -622,19 +714,11 @@ Searches for articles using their ID(s) or link(s).
 <dd>
 
 ```csharp
-await client.SearchLink.SearchUrlPostAsync(
-    new SearchUrlPostRequest
+await client.SearchByLink.SearchByLinkPostAsync(
+    new SearchByLinkPostRequest
     {
-        Ids = new List<string>()
-        {
-            "8ea8a784568ffaa05cb6d1ab2d2e84dd",
-            "0146a551ef05ab1c494a55e806e3ce64",
-        },
-        Links = new List<string>()
-        {
-            "https://www.nytimes.com/2024/08/30/technology/ai-chatbot-chatgpt-manipulation.html",
-            "https://www.bbc.com/news/articles/c39k379grzlo",
-        },
+        Links =
+            "https://www.reuters.com/business/energy/oil-prices-up-after-israeli-attacks-oversupply-caps-gains-2025-09-10/",
     }
 );
 ```
@@ -651,142 +735,7 @@ await client.SearchLink.SearchUrlPostAsync(
 <dl>
 <dd>
 
-**request:** `SearchUrlPostRequest` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## SearchSimilar
-<details><summary><code>client.Searchsimilar.<a href="/src/NewscatcherApi/Searchsimilar/SearchsimilarClient.cs">GetAsync</a>(SearchSimilarGetRequest { ... }) -> OneOf<SearchSimilarResponseDto, FailedSearchSimilarResponseDto></code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Searches for articles similar to a specified query.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```csharp
-await client.Searchsimilar.GetAsync(
-    new SearchSimilarGetRequest
-    {
-        Q = "technology AND (Apple OR Microsoft) NOT Google",
-        SearchIn = "title_content, title_content_translated",
-        IncludeTranslationFields = true,
-        SimilarDocumentsFields = "title,summary",
-        PredefinedSources = "top 100 US, top 5 GB",
-        From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-        IncludeNlpData = true,
-        HasNlp = true,
-        Theme = "Business,Finance",
-        NotTheme = "Crime",
-        NerName = "Tesla",
-        IptcTags = "20000199,20000209",
-        NotIptcTags = "20000205,20000209",
-        CustomTags = "Tag1,Tag2,Tag3",
-    }
-);
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `SearchSimilarGetRequest` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.Searchsimilar.<a href="/src/NewscatcherApi/Searchsimilar/SearchsimilarClient.cs">PostAsync</a>(SearchSimilarPostRequest { ... }) -> OneOf<SearchSimilarResponseDto, FailedSearchSimilarResponseDto></code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Searches for articles similar to the specified query. You can filter results by language, country, source, and more.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```csharp
-await client.Searchsimilar.PostAsync(
-    new SearchSimilarPostRequest
-    {
-        Q = "artificial intelligence",
-        IncludeSimilarDocuments = true,
-        SimilarDocumentsNumber = 5,
-    }
-);
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `SearchSimilarPostRequest` 
+**request:** `SearchByLinkPostRequest` 
     
 </dd>
 </dl>
@@ -799,7 +748,7 @@ await client.Searchsimilar.PostAsync(
 </details>
 
 ## Sources
-<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">GetAsync</a>(SourcesGetRequest { ... }) -> SourcesResponseDto</code></summary>
+<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">GetAsync</a>(SourcesGetRequest { ... }) -> WithRawResponseTask&lt;SourcesResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -827,7 +776,19 @@ Retrieves a list of sources based on specified criteria such as language, countr
 
 ```csharp
 await client.Sources.GetAsync(
-    new SourcesGetRequest { PredefinedSources = "top 100 US, top 5 GB", SourceUrl = "bbc.com" }
+    new SourcesGetRequest
+    {
+        Lang = "en,es",
+        Countries = "US,CA",
+        PredefinedSources = "top 50 US, top 20 GB",
+        SourceName = "sport,tech",
+        SourceUrl = "bbc.com",
+        IncludeAdditionalInfo = true,
+        IsNewsDomain = true,
+        NewsType = "General News Outlets,Tech News and Updates",
+        FromRank = 100,
+        ToRank = 100,
+    }
 );
 ```
 </dd>
@@ -855,7 +816,7 @@ await client.Sources.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">PostAsync</a>(SourcesPostRequest { ... }) -> SourcesResponseDto</code></summary>
+<details><summary><code>client.Sources.<a href="/src/NewscatcherApi/Sources/SourcesClient.cs">PostAsync</a>(SourcesPostRequest { ... }) -> WithRawResponseTask&lt;SourcesResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -882,16 +843,7 @@ Retrieves the list of sources available in the database. You can filter the sour
 <dd>
 
 ```csharp
-await client.Sources.PostAsync(
-    new SourcesPostRequest
-    {
-        PredefinedSources = new List<string>() { "top 50 US" },
-        IncludeAdditionalInfo = true,
-        IsNewsDomain = true,
-        NewsDomainType = NewsDomainType.OriginalContent,
-        NewsType = "General News Outlets",
-    }
-);
+await client.Sources.PostAsync(new SourcesPostRequest { PredefinedSources = "top 10 US" });
 ```
 </dd>
 </dl>
@@ -919,7 +871,7 @@ await client.Sources.PostAsync(
 </details>
 
 ## Aggregation
-<details><summary><code>client.Aggregation.<a href="/src/NewscatcherApi/Aggregation/AggregationClient.cs">GetAsync</a>(AggregationGetRequest { ... }) -> OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto></code></summary>
+<details><summary><code>client.Aggregation.<a href="/src/NewscatcherApi/Aggregation/AggregationClient.cs">CountGetAsync</a>(AggregationCountGetRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;AggregationCountResponseDto, FailedAggregationCountResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -946,20 +898,52 @@ Retrieves the count of articles aggregated by day or hour based on various searc
 <dd>
 
 ```csharp
-await client.Aggregation.GetAsync(
-    new AggregationGetRequest
+await client.Aggregation.CountGetAsync(
+    new AggregationCountGetRequest
     {
-        Q = "technology AND (Apple OR Microsoft) NOT Google",
+        Q = "\"supply chain\" AND Amazon NOT China",
         SearchIn = "title_content, title_content_translated",
-        PredefinedSources = "top 100 US, top 5 GB",
+        PredefinedSources = "top 50 US, top 20 GB",
+        Sources = "nytimes.com,finance.yahoo.com",
+        NotSources = "cnn.com,wsj.com",
+        Lang = "en,es",
+        NotLang = "fr,de",
+        Countries = "US,CA",
+        NotCountries = "UK,FR",
+        NotAuthorName = "John Doe, Jane Doe",
         From = new DateTime(2024, 07, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 07, 01, 00, 00, 00, 000),
+        To = new DateTime(2024, 01, 01, 00, 00, 00, 000),
+        PublishedDatePrecision = "full",
+        ByParseDate = true,
+        RankedOnly = true,
+        FromRank = 100,
+        ToRank = 100,
+        IsHeadline = true,
+        IsOpinion = true,
+        IsPaidContent = false,
+        ParentUrl = "wsj.com/politics,wsj.com/tech",
+        AllLinks = "https://aiindex.stanford.edu/report,https://www.stateof.ai",
+        AllDomainLinks = "who.int,nih.gov",
+        AllLinksText = "Nvidia,Tesla",
+        WordCountMin = 300,
+        WordCountMax = 1000,
+        Page = 2,
+        PageSize = 50,
         IncludeNlpData = true,
         HasNlp = true,
-        Theme = "Business,Finance",
-        NotTheme = "Crime",
+        Theme = "Finance,Tech",
+        NotTheme = "Crime,Sports",
+        OrgEntityName = "\"Apple Inc\" OR Microsoft",
+        PerEntityName = "\"Elon Musk\" OR \"Jeff Bezos\"",
+        LocEntityName = "\"San Francisco\" OR \"New York City\"",
+        MiscEntityName = "AWS OR \"Microsoft Azure\"",
+        TitleSentimentMin = -0.5f,
+        TitleSentimentMax = 0.5f,
+        ContentSentimentMin = -0.5f,
+        ContentSentimentMax = 0.5f,
         IptcTags = "20000199,20000209",
         NotIptcTags = "20000205,20000209",
+        RobotsCompliant = true,
     }
 );
 ```
@@ -976,7 +960,7 @@ await client.Aggregation.GetAsync(
 <dl>
 <dd>
 
-**request:** `AggregationGetRequest` 
+**request:** `AggregationCountGetRequest` 
     
 </dd>
 </dl>
@@ -988,7 +972,7 @@ await client.Aggregation.GetAsync(
 </dl>
 </details>
 
-<details><summary><code>client.Aggregation.<a href="/src/NewscatcherApi/Aggregation/AggregationClient.cs">PostAsync</a>(AggregationPostRequest { ... }) -> OneOf<AggregationCountResponseDto, FailedAggregationCountResponseDto></code></summary>
+<details><summary><code>client.Aggregation.<a href="/src/NewscatcherApi/Aggregation/AggregationClient.cs">CountPostAsync</a>(AggregationCountPostRequest { ... }) -> WithRawResponseTask&lt;OneOf&lt;AggregationCountResponseDto, FailedAggregationCountResponseDto&gt;&gt;</code></summary>
 <dl>
 <dd>
 
@@ -1015,14 +999,11 @@ Retrieves the count of articles aggregated by day or hour based on various searc
 <dd>
 
 ```csharp
-await client.Aggregation.PostAsync(
-    new AggregationPostRequest
+await client.Aggregation.CountPostAsync(
+    new AggregationCountPostRequest
     {
-        Q = "renewable energy",
+        Q = "\"supply chain\" AND Amazon NOT China",
         AggregationBy = AggregationBy.Day,
-        PredefinedSources = "top 50 US",
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
     }
 );
 ```
@@ -1039,7 +1020,7 @@ await client.Aggregation.PostAsync(
 <dl>
 <dd>
 
-**request:** `AggregationPostRequest` 
+**request:** `AggregationCountPostRequest` 
     
 </dd>
 </dl>
@@ -1052,7 +1033,7 @@ await client.Aggregation.PostAsync(
 </details>
 
 ## Subscription
-<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">GetAsync</a>() -> SubscriptionResponseDto</code></summary>
+<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">GetAsync</a>() -> WithRawResponseTask&lt;SubscriptionResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -1091,7 +1072,7 @@ await client.Subscription.GetAsync();
 </dl>
 </details>
 
-<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">PostAsync</a>() -> SubscriptionResponseDto</code></summary>
+<details><summary><code>client.Subscription.<a href="/src/NewscatcherApi/Subscription/SubscriptionClient.cs">PostAsync</a>() -> WithRawResponseTask&lt;SubscriptionResponseDto&gt;</code></summary>
 <dl>
 <dd>
 
@@ -1129,3 +1110,4 @@ await client.Subscription.PostAsync();
 </dd>
 </dl>
 </details>
+

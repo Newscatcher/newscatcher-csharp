@@ -1,23 +1,12 @@
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
+using OneOf;
 
 namespace NewscatcherApi;
 
 [Serializable]
 public record SearchGetRequest
 {
-    /// <summary>
-    /// The keyword(s) to search for in articles. Query syntax supports logical operators (`AND`, `OR`, `NOT`) and wildcards:
-    ///
-    /// - For an exact match, use double quotes. For example, `"technology news"`.
-    /// - Use `*` to search for any keyword.
-    /// - Use `+` to include and `-` to exclude specific words or phrases.
-    ///   For example, `+Apple`, `-Google`.
-    /// - Use `AND`, `OR`, and `NOT` to refine search results.
-    ///   For example, `technology AND (Apple OR Microsoft) NOT Google`.
-    ///
-    /// For more details, see [Advanced querying](/docs/v3/documentation/guides-and-concepts/advanced-querying).
-    /// </summary>
     [JsonIgnore]
     public required string Q { get; set; }
 
@@ -30,21 +19,15 @@ public record SearchGetRequest
     /// <summary>
     /// Predefined top news sources per country.
     ///
-    /// Format: start with the word `top`, followed by the number of desired sources, and then the two-letter country code [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Multiple countries with the number of top sources can be specified as a comma-separated string.
+    /// Format: start with the word `top`, followed by the number of desired sources, and then the two-letter country code [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
     ///
-    /// Examples:
-    /// - `"top 100 US"`
-    /// - `"top 33 AT"`
-    /// - `"top 50 US, top 20 GB"`
-    /// - `"top 33 AT, top 50 IT"`
+    /// Multiple countries with the number of top sources can be specified as a comma-separated string.
     /// </summary>
     [JsonIgnore]
     public string? PredefinedSources { get; set; }
 
     /// <summary>
     /// Word or phrase to search within the source names. To specify multiple values, use a comma-separated string.
-    ///
-    /// Example: `"sport, tech"`
     ///
     /// **Note**: The search doesn't require an exact match and returns sources containing the specified terms in their names. You can use any word or phrase, like `"sport"` or `"new york times"`. For example, `"sport"` returns sources such as `"Motorsport"`, `"Dot Esport"`, and `"Tuttosport"`.
     /// </summary>
@@ -53,18 +36,12 @@ public record SearchGetRequest
 
     /// <summary>
     /// One or more news sources to narrow down the search. The format must be a domain URL. Subdomains, such as `finance.yahoo.com`, are also acceptable.To specify multiple sources, use a comma-separated string.
-    ///
-    /// Examples:
-    /// - `"nytimes.com"`
-    /// - `"theguardian.com, finance.yahoo.com"`
     /// </summary>
     [JsonIgnore]
     public string? Sources { get; set; }
 
     /// <summary>
     /// The news sources to exclude from the search. To exclude multiple sources, use a comma-separated string.
-    ///
-    /// Example: `"cnn.com, wsj.com"`
     /// </summary>
     [JsonIgnore]
     public string? NotSources { get; set; }
@@ -72,9 +49,7 @@ public record SearchGetRequest
     /// <summary>
     /// The language(s) of the search. The only accepted format is the two-letter [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1) code. To select multiple languages, use a comma-separated string.
     ///
-    /// Example: `"en, es"`
-    ///
-    /// To learn more, see [Enumerated parameters &gt; Language](/docs/v3/api-reference/overview/enumerated-parameters#language-lang-and-not-lang).
+    /// To learn more, see [Enumerated parameters &gt; Language](https://www.newscatcherapi.com/docs/news-api/api-reference/enumerated-parameters#language-lang-and-not-lang).
     /// </summary>
     [JsonIgnore]
     public string? Lang { get; set; }
@@ -82,9 +57,7 @@ public record SearchGetRequest
     /// <summary>
     /// The language(s) to exclude from the search. The accepted format is the two-letter [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1) code. To exclude multiple languages, use a comma-separated string.
     ///
-    /// Example: `"fr, de"`
-    ///
-    /// To learn more, see [Enumerated parameters &gt; Language](/docs/v3/api-reference/overview/enumerated-parameters#language-lang-and-not-lang).
+    /// To learn more, see [Enumerated parameters &gt; Language](https://www.newscatcherapi.com/docs/news-api/api-reference/enumerated-parameters#language-lang-and-not-lang).
     /// </summary>
     [JsonIgnore]
     public string? NotLang { get; set; }
@@ -92,9 +65,7 @@ public record SearchGetRequest
     /// <summary>
     /// The countries where the news publisher is located. The accepted format is the two-letter [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code. To select multiple countries, use a comma-separated string.
     ///
-    /// Example: `"US, CA"`
-    ///
-    /// To learn more, see [Enumerated parameters &gt; Country](/docs/v3/api-reference/overview/enumerated-parameters#country-country-and-not-country).
+    /// To learn more, see [Enumerated parameters &gt; Country](https://www.newscatcherapi.com/docs/news-api/api-reference/enumerated-parameters#country-country-and-not-country).
     /// </summary>
     [JsonIgnore]
     public string? Countries { get; set; }
@@ -102,115 +73,52 @@ public record SearchGetRequest
     /// <summary>
     /// The publisher location countries to exclude from the search. The accepted format is the two-letter [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code. To exclude multiple countries, use a comma-separated string.
     ///
-    /// Example:`"US, CA"`
-    ///
-    /// To learn more, see [Enumerated parameters &gt; Country](/docs/v3/api-reference/overview/enumerated-parameters#country-country-and-not-country).
+    /// To learn more, see [Enumerated parameters &gt; Country](https://www.newscatcherapi.com/docs/news-api/api-reference/enumerated-parameters#country-country-and-not-country).
     /// </summary>
     [JsonIgnore]
     public string? NotCountries { get; set; }
 
     /// <summary>
     /// The list of author names to exclude from your search. To exclude articles by specific authors, use a comma-separated string.
-    ///
-    /// Example: `"John Doe, Jane Doe"`
     /// </summary>
     [JsonIgnore]
     public string? NotAuthorName { get; set; }
 
-    /// <summary>
-    /// The starting point in time to search from. Accepts date-time strings in ISO 8601 format and plain text. The default time zone is UTC.
-    ///
-    /// Formats with examples:
-    /// - YYYY-mm-ddTHH:MM:SS: `2024-07-01T00:00:00`
-    /// - YYYY-MM-dd: `2024-07-01`
-    /// - YYYY/mm/dd HH:MM:SS: `2024/07/01 00:00:00`
-    /// - YYYY/mm/dd: `2024/07/01`
-    /// - English phrases: `7 day ago`, `today`
-    ///
-    /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
-    /// </summary>
     [JsonIgnore]
-    public DateTime? From { get; set; }
+    public OneOf<DateTime, string>? From { get; set; }
 
-    /// <summary>
-    /// The ending point in time to search up to. Accepts date-time strings in ISO 8601 format and plain text. The default time zone is UTC.
-    ///
-    /// Formats with examples:
-    /// - YYYY-mm-ddTHH:MM:SS: `2024-07-01T00:00:00`
-    /// - YYYY-MM-dd: `2024-07-01`
-    /// - YYYY/mm/dd HH:MM:SS: `2024/07/01 00:00:00`
-    /// - YYYY/mm/dd: `2024/07/01`
-    /// - English phrases: `1 day ago`, `now`
-    ///
-    /// **Note**: By default, applied to the publication date of the article. To use the article's parse date instead, set the `by_parse_date` parameter to `true`.
-    /// </summary>
     [JsonIgnore]
-    public DateTime? To { get; set; }
+    public OneOf<DateTime, string>? To { get; set; }
 
-    /// <summary>
-    /// The precision of the published date. There are three types:
-    /// - `full`: The day and time of an article is correctly identified with the appropriate timezone.
-    /// - `timezone unknown`: The day and time of an article is correctly identified without timezone.
-    /// - `date`: Only the day is identified without an exact time.
-    /// </summary>
     [JsonIgnore]
-    public SearchGetRequestPublishedDatePrecision? PublishedDatePrecision { get; set; }
+    public string? PublishedDatePrecision { get; set; }
 
-    /// <summary>
-    /// If true, the `from_` and `to_` parameters use article parse dates instead of published dates. Additionally, the `parse_date` variable is added to the output for each article object.
-    /// </summary>
     [JsonIgnore]
     public bool? ByParseDate { get; set; }
 
-    /// <summary>
-    /// The sorting order of the results. Possible values are:
-    /// - `relevancy`: The most relevant results first.
-    /// - `date`: The most recently published results first.
-    /// - `rank`: The results from the highest-ranked sources first.
-    /// </summary>
     [JsonIgnore]
-    public SearchGetRequestSortBy? SortBy { get; set; }
+    public SortBy? SortBy { get; set; }
 
-    /// <summary>
-    /// If true, limits the search to sources ranked in the top 1 million online websites. If false, includes unranked sources which are assigned a rank of 999999.
-    /// </summary>
     [JsonIgnore]
     public bool? RankedOnly { get; set; }
 
-    /// <summary>
-    /// The lowest boundary of the rank of a news website to filter by. A lower rank indicates a more popular source.
-    /// </summary>
     [JsonIgnore]
     public int? FromRank { get; set; }
 
-    /// <summary>
-    /// The highest boundary of the rank of a news website to filter by. A lower rank indicates a more popular source.
-    /// </summary>
     [JsonIgnore]
     public int? ToRank { get; set; }
 
-    /// <summary>
-    /// If true, only returns articles that were posted on the home page of a given news domain.
-    /// </summary>
     [JsonIgnore]
     public bool? IsHeadline { get; set; }
 
-    /// <summary>
-    /// If true, returns only opinion pieces. If false, excludes opinion-based articles and returns news only.
-    /// </summary>
     [JsonIgnore]
     public bool? IsOpinion { get; set; }
 
-    /// <summary>
-    /// If false, returns only articles that have publicly available complete content. Some publishers partially block content, so this setting ensures that only full articles are retrieved.
-    /// </summary>
     [JsonIgnore]
     public bool? IsPaidContent { get; set; }
 
     /// <summary>
     /// The categorical URL(s) to filter your search. To filter your search by multiple categorical URLs, use a comma-separated string.
-    ///
-    /// Example: `"wsj.com/politics, wsj.com/tech"`
     /// </summary>
     [JsonIgnore]
     public string? ParentUrl { get; set; }
@@ -218,9 +126,7 @@ public record SearchGetRequest
     /// <summary>
     /// The complete URL(s) mentioned in the article. For multiple URLs, use a comma-separated string.
     ///
-    /// Example: `"https://aiindex.stanford.edu/report, https://www.stateof.ai"`
-    ///
-    /// For more details, see [Search by URL](/docs/v3/documentation/how-to/search-by-url).
+    /// For more details, see [Search by URL](https://www.newscatcherapi.com/docs/news-api/how-to/search-by-url).
     /// </summary>
     [JsonIgnore]
     public string? AllLinks { get; set; }
@@ -228,106 +134,56 @@ public record SearchGetRequest
     /// <summary>
     /// The domain(s) mentioned in the article. For multiple domains, use a comma-separated string.
     ///
-    /// Example: `"who.int, nih.gov"`
-    ///
-    /// For more details, see [Search by URL](/docs/v3/documentation/how-to/search-by-url).
+    /// For more details, see [Search by URL](https://www.newscatcherapi.com/docs/news-api/how-to/search-by-url).
     /// </summary>
     [JsonIgnore]
     public string? AllDomainLinks { get; set; }
 
     /// <summary>
-    /// If true, includes additional domain information in the response for each article:
-    /// - `is_news_domain`: Boolean indicating if the source is a news domain.
-    /// - `news_domain_type`: Type of news domain (e.g., `"Original Content"`).
-    /// - `news_type`: Category of news (e.g., `"News and Blogs"`).
+    /// The text content of links mentioned in the article. Searches for links where the anchor text contains the specified terms. For multiple terms, use a comma-separated string.
+    ///
+    /// **Note**: When this parameter is used, the response includes the `all_links_data` field with detailed link information.
+    ///
+    /// To learn more, see [Search by URL](https://www.newscatcherapi.com/docs/news-api/how-to/search-by-url).
     /// </summary>
+    [JsonIgnore]
+    public string? AllLinksText { get; set; }
+
     [JsonIgnore]
     public bool? AdditionalDomainInfo { get; set; }
 
-    /// <summary>
-    /// If true, filters results to include only news domains.
-    /// </summary>
     [JsonIgnore]
     public bool? IsNewsDomain { get; set; }
 
-    /// <summary>
-    /// Filters results based on the news domain type. Possible values are:
-    /// - `Original Content`: Sources that produce their own content.
-    /// - `Aggregator`: Sources that collect content from various other sources.
-    /// - `Press Releases`: Sources primarily publishing press releases.
-    /// - `Republisher`: Sources that republish content from other sources.
-    /// - `Other`: Sources that don't fit into main categories.
-    /// </summary>
     [JsonIgnore]
-    public SearchGetRequestNewsDomainType? NewsDomainType { get; set; }
+    public NewsDomainType? NewsDomainType { get; set; }
 
     /// <summary>
     /// Filters results based on the news type. Multiple types can be specified using a comma-separated string.
     ///
-    /// Example: `"General News Outlets,Tech News and Updates"`
-    ///
-    /// For a complete list of available news types, see [Enumerated parameters &gt; News type](/docs/v3/api-reference/overview/enumerated-parameters#news-type-news-type).
+    /// For a complete list of available news types, see [Enumerated parameters &gt; News type](https://www.newscatcherapi.com/docs/news-api/api-reference/enumerated-parameters#news-type-news-type).
     /// </summary>
     [JsonIgnore]
     public string? NewsType { get; set; }
 
-    /// <summary>
-    /// The minimum number of words an article must contain. To be used for avoiding articles with small content.
-    /// </summary>
     [JsonIgnore]
     public int? WordCountMin { get; set; }
 
-    /// <summary>
-    /// The maximum number of words an article can contain. To be used for avoiding articles with large content.
-    /// </summary>
     [JsonIgnore]
     public int? WordCountMax { get; set; }
 
-    /// <summary>
-    /// The page number to scroll through the results. Use for pagination, as a single API response can return up to 1,000 articles.
-    ///
-    /// For details, see [How to paginate large datasets](https://www.newscatcherapi.com/docs/v3/documentation/how-to/paginate-large-datasets).
-    /// </summary>
     [JsonIgnore]
     public int? Page { get; set; }
 
-    /// <summary>
-    /// The number of articles to return per page.
-    /// </summary>
     [JsonIgnore]
     public int? PageSize { get; set; }
 
-    /// <summary>
-    /// Determines whether to group similar articles into clusters. If true, the API returns clustered results.
-    ///
-    /// To learn more, see [Clustering news articles](/docs/v3/documentation/guides-and-concepts/clustering-news-articles).
-    /// </summary>
     [JsonIgnore]
     public bool? ClusteringEnabled { get; set; }
 
-    /// <summary>
-    /// Specifies which part of the article to use for determining similarity when clustering.
-    ///
-    /// Possible values are:
-    /// - `content`: Uses the full article content (default).
-    /// - `title`: Uses only the article title.
-    /// - `summary`: Uses the article summary.
-    ///
-    /// To learn more, see [Clustering news articles](/docs/v3/documentation/guides-and-concepts/clustering-news-articles).
-    /// </summary>
     [JsonIgnore]
-    public SearchGetRequestClusteringVariable? ClusteringVariable { get; set; }
+    public ClusteringVariable? ClusteringVariable { get; set; }
 
-    /// <summary>
-    /// Sets the similarity threshold for grouping articles into clusters. A lower value creates more inclusive clusters, while a higher value requires greater similarity between articles.
-    ///
-    /// Examples:
-    /// - `0.3`: Results in larger, more diverse clusters.
-    /// - `0.6`: Balances cluster size and article similarity (default).
-    /// - `0.9`: Creates smaller, tightly related clusters.
-    ///
-    /// To learn more, see [Clustering news articles](/docs/v3/documentation/guides-and-concepts/clustering-news-articles).
-    /// </summary>
     [JsonIgnore]
     public float? ClusteringThreshold { get; set; }
 
@@ -337,144 +193,38 @@ public record SearchGetRequest
     [JsonIgnore]
     public bool? HasNlp { get; set; }
 
-    /// <summary>
-    /// Filters articles based on their general topic, as determined by NLP analysis. To select multiple themes, use a comma-separated string.
-    ///
-    /// Example: `"Finance, Tech"`
-    ///
-    /// **Note**: The `theme` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    ///
-    /// Available options: `Business`, `Economics`, `Entertainment`, `Finance`, `Health`, `Politics`, `Science`, `Sports`, `Tech`, `Crime`, `Financial Crime`, `Lifestyle`, `Automotive`, `Travel`, `Weather`, `General`.
-    /// </summary>
     [JsonIgnore]
     public string? Theme { get; set; }
 
-    /// <summary>
-    /// Inverse of the `theme` parameter. Excludes articles based on their general topic, as determined by NLP analysis. To exclude multiple themes, use a comma-separated string.
-    ///
-    /// Example: `"Crime, Tech"`
-    ///
-    /// **Note**: The `not_theme` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
     [JsonIgnore]
     public string? NotTheme { get; set; }
 
-    /// <summary>
-    /// Filters articles that mention specific organization names, as identified by NLP analysis. To specify multiple organizations, use a comma-separated string. To search named entities in translations, combine with the translation options of the `search_in` parameter (e.g., `title_content_translated`).
-    ///
-    /// Example: `"Apple, Microsoft"`
-    ///
-    /// **Note**: The `ORG_entity_name` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [Search by entity](/docs/v3/documentation/how-to/search-by-entity).
-    /// </summary>
     [JsonIgnore]
     public string? OrgEntityName { get; set; }
 
-    /// <summary>
-    /// Filters articles that mention specific person names, as identified by NLP analysis. To specify multiple names, use a comma-separated string. To search named entities in translations, combine with the translation options of the `search_in` parameter (e.g., `title_content_translated`).
-    ///
-    /// Example: `"Elon Musk, Jeff Bezos"`
-    ///
-    /// **Note**: The `PER_entity_name` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [Search by entity](/docs/v3/documentation/how-to/search-by-entity).
-    /// </summary>
     [JsonIgnore]
     public string? PerEntityName { get; set; }
 
-    /// <summary>
-    /// Filters articles that mention specific location names, as identified by NLP analysis. To specify multiple locations, use a comma-separated string. To search named entities in translations, combine with the translation options of the `search_in` parameter (e.g., `title_content_translated`).
-    ///
-    /// Example: `"California, New York"`
-    ///
-    /// **Note**: The `LOC_entity_name` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [Search by entity](/docs/v3/documentation/how-to/search-by-entity).
-    /// </summary>
     [JsonIgnore]
     public string? LocEntityName { get; set; }
 
-    /// <summary>
-    /// Filters articles that mention other named entities not falling under person, organization, or location categories. Includes events, nationalities, products, works of art, and more. To specify multiple entities, use a comma-separated string. To search named entities in translations, combine with the translation options of the `search_in` parameter (e.g., `title_content_translated`).
-    ///
-    /// Example: `"Bitcoin, Blockchain"`
-    ///
-    /// **Note**: The `MISC_entity_name` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [Search by entity](/docs/v3/documentation/how-to/search-by-entity).
-    /// </summary>
     [JsonIgnore]
     public string? MiscEntityName { get; set; }
 
-    /// <summary>
-    /// Filters articles based on the minimum sentiment score of their titles.
-    ///
-    /// Range is `-1.0` to `1.0`, where:
-    /// - Negative values indicate negative sentiment.
-    /// - Positive values indicate positive sentiment.
-    /// - Values close to 0 indicate neutral sentiment.
-    ///
-    /// **Note**: The `title_sentiment_min` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
     [JsonIgnore]
     public float? TitleSentimentMin { get; set; }
 
-    /// <summary>
-    /// Filters articles based on the maximum sentiment score of their titles.
-    ///
-    /// Range is `-1.0` to `1.0`, where:
-    /// - Negative values indicate negative sentiment.
-    /// - Positive values indicate positive sentiment.
-    /// - Values close to 0 indicate neutral sentiment.
-    ///
-    /// **Note**: The `title_sentiment_max` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
     [JsonIgnore]
     public float? TitleSentimentMax { get; set; }
 
-    /// <summary>
-    /// Filters articles based on the minimum sentiment score of their content.
-    ///
-    /// Range is `-1.0` to `1.0`, where:
-    /// - Negative values indicate negative sentiment.
-    /// - Positive values indicate positive sentiment.
-    /// - Values close to 0 indicate neutral sentiment.
-    ///
-    /// **Note**: The `content_sentiment_min` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
     [JsonIgnore]
     public float? ContentSentimentMin { get; set; }
 
-    /// <summary>
-    /// Filters articles based on the maximum sentiment score of their content.
-    ///
-    /// Range is `-1.0` to `1.0`, where:
-    /// - Negative values indicate negative sentiment.
-    /// - Positive values indicate positive sentiment.
-    /// - Values close to 0 indicate neutral sentiment.
-    ///
-    /// **Note**: The `content_sentiment_max` parameter is only available if NLP is included in your subscription plan.
-    ///
-    /// To learn more, see [NLP features](/docs/v3/documentation/guides-and-concepts/nlp-features).
-    /// </summary>
     [JsonIgnore]
     public float? ContentSentimentMax { get; set; }
 
     /// <summary>
     /// Filters articles based on International Press Telecommunications Council (IPTC) media topic tags. To specify multiple IPTC tags, use a comma-separated string of tag IDs.
-    ///
-    /// Example: `"20000199, 20000209"`
     ///
     /// **Note**: The `iptc_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
@@ -486,8 +236,6 @@ public record SearchGetRequest
     /// <summary>
     /// Inverse of the `iptc_tags` parameter. Excludes articles based on International Press Telecommunications Council (IPTC) media topic tags. To specify multiple IPTC tags to exclude, use a comma-separated string of tag IDs.
     ///
-    /// Example: `"20000205, 20000209"`
-    ///
     /// **Note**: The `not_iptc_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
     /// To learn more, see [IPTC Media Topic NewsCodes](https://www.iptc.org/std/NewsCodes/treeview/mediatopic/mediatopic-en-GB.html).
@@ -497,8 +245,6 @@ public record SearchGetRequest
 
     /// <summary>
     /// Filters articles based on Interactive Advertising Bureau (IAB) content categories. These tags provide a standardized taxonomy for digital advertising content categorization. To specify multiple IAB categories, use a comma-separated string.
-    ///
-    /// Example: `"Business, Events"`
     ///
     /// **Note**: The `iab_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
@@ -510,8 +256,6 @@ public record SearchGetRequest
     /// <summary>
     /// Inverse of the `iab_tags` parameter. Excludes articles based on Interactive Advertising Bureau (IAB) content categories. These tags provide a standardized taxonomy for digital advertising content categorization. To specify multiple IAB categories to exclude, use a comma-separated string.
     ///
-    /// Example: `"Agriculture, Metals"`
-    ///
     /// **Note**: The `not_iab_tags` parameter is only available in the `v3_nlp_iptc_tags` subscription plan.
     ///
     /// To learn more, see the [IAB Content taxonomy](https://iabtechlab.com/standards/content-taxonomy/).
@@ -522,26 +266,18 @@ public record SearchGetRequest
     /// <summary>
     /// Filters articles based on provided taxonomy that is tailored to your specific needs and is accessible only with your API key. To specify tags, use the following pattern:
     ///
-    /// - `custom_tags.taxonomy=Tag1,Tag2,Tag3`, where `taxonomy` is the taxonomy name and `Tag1,Tag2,Tag3` is a comma-separated list of tags.
+    /// - `custom_tags.taxonomy=Tag1,Tag2`, where `taxonomy` is the taxonomy name and `Tag1,Tag2` is a comma-separated list of tag names.
     ///
-    /// Example: `custom_tags.industry="Manufacturing, Supply Chain, Logistics"`
+    /// Example: `custom_tags.industry="Manufacturing,Logistics"`
     ///
-    /// To learn more, see the [Custom tags](/docs/v3/documentation/guides-and-concepts/custom-tags).
+    /// To learn more, see the [Custom tags](https://www.newscatcherapi.com/docs/news-api/guides-and-concepts/custom-tags).
     /// </summary>
     [JsonIgnore]
     public string? CustomTags { get; set; }
 
-    /// <summary>
-    /// If true, excludes duplicate and highly similar articles from the search results. If false, returns all relevant articles, including duplicates.
-    ///
-    /// To learn more, see [Articles deduplication](/docs/v3/documentation/guides-and-concepts/articles-deduplication).
-    /// </summary>
     [JsonIgnore]
     public bool? ExcludeDuplicates { get; set; }
 
-    /// <summary>
-    /// If true, returns only articles/sources that comply with the publisher's robots.txt rules. If false, returns only articles/sources that do not comply with robots.txt rules. If omitted, returns all articles/sources regardless of compliance status.
-    /// </summary>
     [JsonIgnore]
     public bool? RobotsCompliant { get; set; }
 
