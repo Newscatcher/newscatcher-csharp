@@ -1,18 +1,94 @@
-using System.Runtime.Serialization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
 
-[JsonConverter(typeof(EnumSerializer<SortBy>))]
-public enum SortBy
+[JsonConverter(typeof(SortBy.SortBySerializer))]
+[Serializable]
+public readonly record struct SortBy : IStringEnum
 {
-    [EnumMember(Value = "relevancy")]
-    Relevancy,
+    public static readonly SortBy Relevancy = new(Values.Relevancy);
 
-    [EnumMember(Value = "date")]
-    Date,
+    public static readonly SortBy Date = new(Values.Date);
 
-    [EnumMember(Value = "rank")]
-    Rank,
+    public static readonly SortBy Rank = new(Values.Rank);
+
+    public SortBy(string value)
+    {
+        Value = value;
+    }
+
+    /// <summary>
+    /// The string value of the enum.
+    /// </summary>
+    public string Value { get; }
+
+    /// <summary>
+    /// Create a string enum with the given value.
+    /// </summary>
+    public static SortBy FromCustom(string value)
+    {
+        return new SortBy(value);
+    }
+
+    public bool Equals(string? other)
+    {
+        return Value.Equals(other);
+    }
+
+    /// <summary>
+    /// Returns the string value of the enum.
+    /// </summary>
+    public override string ToString()
+    {
+        return Value;
+    }
+
+    public static bool operator ==(SortBy value1, string value2) => value1.Value.Equals(value2);
+
+    public static bool operator !=(SortBy value1, string value2) => !value1.Value.Equals(value2);
+
+    public static explicit operator string(SortBy value) => value.Value;
+
+    public static explicit operator SortBy(string value) => new(value);
+
+    internal class SortBySerializer : JsonConverter<SortBy>
+    {
+        public override SortBy Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
+        {
+            var stringValue =
+                reader.GetString()
+                ?? throw new global::System.Exception(
+                    "The JSON value could not be read as a string."
+                );
+            return new SortBy(stringValue);
+        }
+
+        public override void Write(
+            Utf8JsonWriter writer,
+            SortBy value,
+            JsonSerializerOptions options
+        )
+        {
+            writer.WriteStringValue(value.Value);
+        }
+    }
+
+    /// <summary>
+    /// Constant strings for enum values
+    /// </summary>
+    [Serializable]
+    public static class Values
+    {
+        public const string Relevancy = "relevancy";
+
+        public const string Date = "date";
+
+        public const string Rank = "rank";
+    }
 }

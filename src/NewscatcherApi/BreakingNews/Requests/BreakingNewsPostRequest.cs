@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using NewscatcherApi.Core;
-using OneOf;
 
 namespace NewscatcherApi;
 
@@ -38,10 +37,10 @@ public record BreakingNewsPostRequest
     public bool? HasNlp { get; set; }
 
     [JsonPropertyName("theme")]
-    public OneOf<string, IEnumerable<string>>? Theme { get; set; }
+    public string? Theme { get; set; }
 
     [JsonPropertyName("not_theme")]
-    public OneOf<string, IEnumerable<string>>? NotTheme { get; set; }
+    public string? NotTheme { get; set; }
 
     [JsonPropertyName("ORG_entity_name")]
     public string? OrgEntityName { get; set; }
@@ -64,11 +63,8 @@ public record BreakingNewsPostRequest
     [JsonPropertyName("content_sentiment_min")]
     public float? ContentSentimentMin { get; set; }
 
-    [JsonPropertyName("content_sentient_max")]
-    public float? ContentSentientMax { get; set; }
-
-    [JsonPropertyName("robots_compliant")]
-    public bool? RobotsCompliant { get; set; }
+    [JsonPropertyName("content_sentiment_max")]
+    public float? ContentSentimentMax { get; set; }
 
     /// <inheritdoc />
     public override string ToString()

@@ -41,7 +41,7 @@ public record AuthorsPostRequest
     public OneOf<DateTime, string>? To { get; set; }
 
     [JsonPropertyName("published_date_precision")]
-    public PublishedDatePrecision? PublishedDatePrecision { get; set; }
+    public string? PublishedDatePrecision { get; set; }
 
     [JsonPropertyName("by_parse_date")]
     public bool? ByParseDate { get; set; }
@@ -76,6 +76,9 @@ public record AuthorsPostRequest
     [JsonPropertyName("all_domain_links")]
     public OneOf<string, IEnumerable<string>>? AllDomainLinks { get; set; }
 
+    [JsonPropertyName("all_links_text")]
+    public OneOf<string, IEnumerable<string>>? AllLinksText { get; set; }
+
     [JsonPropertyName("word_count_min")]
     public int? WordCountMin { get; set; }
 
@@ -98,10 +101,10 @@ public record AuthorsPostRequest
     public bool? HasNlp { get; set; }
 
     [JsonPropertyName("theme")]
-    public OneOf<string, IEnumerable<string>>? Theme { get; set; }
+    public string? Theme { get; set; }
 
     [JsonPropertyName("not_theme")]
-    public OneOf<string, IEnumerable<string>>? NotTheme { get; set; }
+    public string? NotTheme { get; set; }
 
     [JsonPropertyName("ner_name")]
     public string? NerName { get; set; }
