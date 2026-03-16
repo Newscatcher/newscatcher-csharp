@@ -11,8 +11,12 @@ namespace NewscatcherApi;
 /// - Optional fields may be `null` or `undefined` if the data point is not presented or couldn't be extracted during processing.
 /// </summary>
 [Serializable]
-public record AggregationCountResponseDto
+public record AggregationCountResponseDto : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// The aggregation results. Can be either a dictionary or a list of dictionaries.
     /// </summary>
@@ -20,7 +24,7 @@ public record AggregationCountResponseDto
     public OneOf<AggregationItem, IEnumerable<AggregationItem>>? Aggregations { get; set; }
 
     [JsonPropertyName("user_input")]
-    public object? UserInput { get; set; }
+    public Dictionary<string, object?>? UserInput { get; set; }
 
     /// <summary>
     /// The status of the response.
@@ -52,15 +56,11 @@ public record AggregationCountResponseDto
     [JsonPropertyName("page_size")]
     public required int PageSize { get; set; }
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
