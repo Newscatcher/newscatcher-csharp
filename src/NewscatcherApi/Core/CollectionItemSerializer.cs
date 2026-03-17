@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using global::System.Text.Json;
+using global::System.Text.Json.Serialization;
 
 namespace NewscatcherApi.Core;
 
@@ -42,7 +42,7 @@ internal class CollectionItemSerializer<TDatatype, TConverterType>
             {
                 var item = (TDatatype)(
                     JsonSerializer.Deserialize(ref reader, typeof(TDatatype), jsonSerializerOptions)
-                    ?? throw new Exception(
+                    ?? throw new global::System.Exception(
                         $"Failed to deserialize collection item of type {typeof(TDatatype)}"
                     )
                 );
@@ -67,7 +67,7 @@ internal class CollectionItemSerializer<TDatatype, TConverterType>
         JsonSerializerOptions options
     )
     {
-        if (value == null)
+        if (value is null)
         {
             writer.WriteNullValue();
             return;

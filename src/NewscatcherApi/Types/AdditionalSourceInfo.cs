@@ -8,8 +8,12 @@ namespace NewscatcherApi;
 /// The data model for additional information about a news source.
 /// </summary>
 [Serializable]
-public record AdditionalSourceInfo
+public record AdditionalSourceInfo : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// The number of articles published by the source in the last seven days.
     /// </summary>
@@ -47,14 +51,16 @@ public record AdditionalSourceInfo
     public string? NewsType { get; set; }
 
     /// <summary>
-    /// Additional properties received from the response, if any.
+    /// Percentage of domain articles that comply with robots.txt scraping rules (0-100%).
     /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonPropertyName("robots_compliant")]
+    public string? RobotsCompliant { get; set; }
+
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()

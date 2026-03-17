@@ -8,8 +8,12 @@ namespace NewscatcherApi;
 /// The data model representing a breaking news event with its associated articles.
 /// </summary>
 [Serializable]
-public record BreakingNewsEventEntity
+public record BreakingNewsEventEntity : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// Unique identifier for the breaking news event/cluster.
     /// </summary>
@@ -29,15 +33,11 @@ public record BreakingNewsEventEntity
     public IEnumerable<BreakingNewsArticleEntity> Articles { get; set; } =
         new List<BreakingNewsArticleEntity>();
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
