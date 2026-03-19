@@ -9,8 +9,12 @@ namespace NewscatcherApi;
 /// The data model representing a single article in the `Breaking news` search results.
 /// </summary>
 [Serializable]
-public record BreakingNewsArticleEntity
+public record BreakingNewsArticleEntity : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// The title of the article.
     /// </summary>
@@ -96,7 +100,7 @@ public record BreakingNewsArticleEntity
     public bool? IsHeadline { get; set; }
 
     /// <summary>
-    /// Indicates if the article is paid content.
+    /// Indicates whether the source labels the article as paywalled or requiring a subscription for full access.
     /// </summary>
     [JsonPropertyName("paid_content")]
     public bool? PaidContent { get; set; }
@@ -147,7 +151,19 @@ public record BreakingNewsArticleEntity
     /// The content of the article.
     /// </summary>
     [JsonPropertyName("content")]
-    public required string Content { get; set; }
+    public string? Content { get; set; }
+
+    /// <summary>
+    /// English translation of the article title. Available when setting the `include_translation_fields` parameter to `true`.
+    /// </summary>
+    [JsonPropertyName("title_translated_en")]
+    public string? TitleTranslatedEn { get; set; }
+
+    /// <summary>
+    /// English translation of the article content. Available when setting the `include_translation_fields` parameter to `true`.
+    /// </summary>
+    [JsonPropertyName("content_translated_en")]
+    public string? ContentTranslatedEn { get; set; }
 
     /// <summary>
     /// The word count of the article.
@@ -194,21 +210,11 @@ public record BreakingNewsArticleEntity
     [JsonPropertyName("score")]
     public required double Score { get; set; }
 
-    /// <summary>
-    /// True if the article content can be safely accessed according to the publisher's robots.txt rules; false otherwise.
-    /// </summary>
-    [JsonPropertyName("robots_compliant")]
-    public bool? RobotsCompliant { get; set; }
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()

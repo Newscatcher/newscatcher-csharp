@@ -8,8 +8,12 @@ namespace NewscatcherApi;
 /// Natural Language Processing data for the article.
 /// </summary>
 [Serializable]
-public record NlpDataEntity
+public record NlpDataEntity : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// A brief AI-generated summary of the article's English translation.
     /// </summary>
@@ -34,7 +38,7 @@ public record NlpDataEntity
     /// <summary>
     /// A dense 1024-dimensional vector representation of the article content, generated using  the [multilingual-e5-large](https://huggingface.co/intfloat/multilingual-e5-large) model.
     ///
-    /// **Note**: The `new_embedding` field is only available in the `v3_local_news_nlp_embeddings` subscription plan.
+    /// **Note**: The `new_embedding` field is only available in the `v3_nlp_embeddings` subscription plan.
     /// </summary>
     [JsonPropertyName("new_embedding")]
     public IEnumerable<float>? NewEmbedding { get; set; }
@@ -111,15 +115,11 @@ public record NlpDataEntity
     [JsonPropertyName("iab_tags_name")]
     public IEnumerable<string>? IabTagsName { get; set; }
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
