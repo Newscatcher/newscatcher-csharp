@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using global::System.Text.Json;
+using global::System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -8,16 +8,20 @@ namespace NewscatcherApi;
 /// The response model for a failed `Authors` search request.
 /// </summary>
 [Serializable]
-public record FailedAuthorsResponseDto
+public record FailedAuthorsResponseDto : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// An empty list of articles, as no matches were found.
     /// </summary>
     [JsonPropertyName("articles")]
-    public IEnumerable<object>? Articles { get; set; }
+    public IEnumerable<Dictionary<string, object?>>? Articles { get; set; }
 
     [JsonPropertyName("user_input")]
-    public object? UserInput { get; set; }
+    public Dictionary<string, object?>? UserInput { get; set; }
 
     /// <summary>
     /// The status of the response.
@@ -49,15 +53,11 @@ public record FailedAuthorsResponseDto
     [JsonPropertyName("page_size")]
     public required int PageSize { get; set; }
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
