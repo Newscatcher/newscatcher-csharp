@@ -1,19 +1,41 @@
 # Newscatcher C# Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FNewscatcher%2Fnewscatcher-csharp)
-[![nuget shield](https://img.shields.io/nuget/v/NewscatcherApi)](https://nuget.org/packages/NewscatcherApi)
+[![nuget shield](https://img.shields.io/nuget/v/Newscatcher.Client)](https://nuget.org/packages/Newscatcher.Client)
 
-The Newscatcher C# library provides convenient access to the Newscatcher API from C#.
+The Newscatcher C# library provides convenient access to the Newscatcher APIs from C#.
+
+## Table of Contents
+
+- [Documentation](#documentation)
+- [Installation](#installation)
+- [Reference](#reference)
+- [Usage](#usage)
+- [Environments](#environments)
+- [Exception Handling](#exception-handling)
+- [Advanced](#advanced)
+  - [Retries](#retries)
+  - [Timeouts](#timeouts)
+  - [Raw Response](#raw-response)
+  - [Additional Headers](#additional-headers)
+  - [Additional Query Parameters](#additional-query-parameters)
+  - [Forward Compatible Enums](#forward-compatible-enums)
+- [Contributing](#contributing)
+- [Requirements](#requirements)
 
 ## Documentation
 
-API reference documentation is available [here](https://www.newscatcherapi.com/docs/v3/api-reference).
+API reference documentation is available [here](https://www.newscatcherapi.com/docs/news-api/api-reference/overview).
 
 ## Installation
 
 ```sh
-dotnet add package NewscatcherApi
+dotnet add package Newscatcher.Client
 ```
+
+## Reference
+
+A full reference for this library is available [here](https://github.com/Newscatcher/newscatcher-csharp/blob/HEAD/./reference.md).
 
 ## Usage
 
@@ -24,17 +46,21 @@ using NewscatcherApi;
 
 var client = new NewscatcherApiClient("API_KEY");
 await client.Search.PostAsync(
-    new SearchPostRequest
-    {
-        Q = "renewable energy",
-        PredefinedSources = new List<string>() { "top 50 US" },
-        Lang = new List<string>() { "en" },
-        From = new DateTime(2024, 01, 01, 00, 00, 00, 000),
-        To = new DateTime(2024, 06, 30, 00, 00, 00, 000),
-        AdditionalDomainInfo = true,
-        IsNewsDomain = true,
-    }
+    new PostSearchRequest { Q = "\"supply chain\" AND Amazon NOT China", PageSize = 1 }
 );
+```
+
+## Environments
+
+This SDK allows you to configure different environments for API requests.
+
+```csharp
+using NewscatcherApi;
+
+var client = new NewscatcherApiClient(new ClientOptions
+{
+    BaseUrl = NewscatcherApiEnvironment.Default
+});
 ```
 
 ## Exception Handling
@@ -61,11 +87,19 @@ The SDK is instrumented with automatic retries with exponential backoff. A reque
 as the request is deemed retryable and the number of retry attempts has not grown larger than the configured
 retry limit (default: 2).
 
-A request is deemed retryable when any of the following HTTP status codes is returned:
+Which status codes are retried depends on the `retryStatusCodes` generator configuration:
 
+**`legacy`** (current default): retries on
 - [408](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/408) (Timeout)
 - [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) (Too Many Requests)
-- [5XX](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500) (Internal Server Errors)
+- [5XX](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses) (All server errors, including 500)
+
+**`recommended`**: retries on
+- [408](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/408) (Timeout)
+- [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) (Too Many Requests)
+- [502](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502) (Bad Gateway)
+- [503](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503) (Service Unavailable)
+- [504](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504) (Gateway Timeout)
 
 Use the `MaxRetries` request option to configure this behavior.
 
@@ -91,6 +125,95 @@ var response = await client.Search.PostAsync(
 );
 ```
 
+### Raw Response
+
+Access raw HTTP response data (status code, headers, URL) alongside parsed response data using the `.WithRawResponse()` method.
+
+```csharp
+using NewscatcherApi;
+
+// Access raw response data (status code, headers, etc.) alongside the parsed response
+var result = await client.Search.PostAsync(...).WithRawResponse();
+
+// Access the parsed data
+var data = result.Data;
+
+// Access raw response metadata
+var statusCode = result.RawResponse.StatusCode;
+var headers = result.RawResponse.Headers;
+var url = result.RawResponse.Url;
+
+// Access specific headers (case-insensitive)
+if (headers.TryGetValue("X-Request-Id", out var requestId))
+{
+    System.Console.WriteLine($"Request ID: {requestId}");
+}
+
+// For the default behavior, simply await without .WithRawResponse()
+var data = await client.Search.PostAsync(...);
+```
+
+### Additional Headers
+
+If you would like to send additional headers as part of the request, use the `AdditionalHeaders` request option.
+
+```csharp
+var response = await client.Search.PostAsync(
+    ...,
+    new RequestOptions {
+        AdditionalHeaders = new Dictionary<string, string?>
+        {
+            { "X-Custom-Header", "custom-value" }
+        }
+    }
+);
+```
+
+### Additional Query Parameters
+
+If you would like to send additional query parameters as part of the request, use the `AdditionalQueryParameters` request option.
+
+```csharp
+var response = await client.Search.PostAsync(
+    ...,
+    new RequestOptions {
+        AdditionalQueryParameters = new Dictionary<string, string>
+        {
+            { "custom_param", "custom-value" }
+        }
+    }
+);
+```
+
+### Forward Compatible Enums
+
+This SDK uses forward-compatible enums that can handle unknown values gracefully.
+
+```csharp
+using NewscatcherApi;
+
+// Using a built-in value
+var sortBy = SortBy.Relevancy;
+
+// Using a custom value
+var customSortBy = SortBy.FromCustom("custom-value");
+
+// Using in a switch statement
+switch (sortBy.Value)
+{
+    case SortBy.Values.Relevancy:
+        Console.WriteLine("Relevancy");
+        break;
+    default:
+        Console.WriteLine($"Unknown value: {sortBy.Value}");
+        break;
+}
+
+// Explicit casting
+string sortByString = (string)SortBy.Relevancy;
+SortBy sortByFromString = (SortBy)"relevancy";
+```
+
 ## Contributing
 
 While we value open-source contributions to this SDK, this library is generated programmatically.
@@ -103,3 +226,4 @@ On the other hand, contributions to the README are always very welcome!
 ## Requirements
 
 This SDK requires:
+
