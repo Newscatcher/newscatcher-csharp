@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using global::System.Text.Json;
+using global::System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
@@ -11,8 +11,12 @@ namespace NewscatcherApi;
 /// - Optional fields may be `null` or `undefined` if the data point is not presented or couldn't be extracted during processing.
 /// </summary>
 [Serializable]
-public record SourcesResponseDto
+public record SourcesResponseDto : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// A message indicating the result of the request.
     /// </summary>
@@ -30,17 +34,13 @@ public record SourcesResponseDto
     /// The user input parameters for the request.
     /// </summary>
     [JsonPropertyName("user_input")]
-    public object UserInput { get; set; } = new Dictionary<string, object?>();
+    public Dictionary<string, object?> UserInput { get; set; } = new Dictionary<string, object?>();
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
