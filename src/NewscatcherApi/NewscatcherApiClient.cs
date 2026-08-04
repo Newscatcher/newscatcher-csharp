@@ -2,57 +2,61 @@ using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
 
-public partial class NewscatcherApiClient
+public partial class NewscatcherApiClient : INewscatcherApiClient
 {
     private readonly RawClient _client;
 
     public NewscatcherApiClient(string? apiKey = null, ClientOptions? clientOptions = null)
     {
-        var defaultHeaders = new Headers(
+        clientOptions ??= new ClientOptions();
+        var platformHeaders = new Headers(
             new Dictionary<string, string>()
             {
-                { "x-api-token", apiKey },
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "NewscatcherApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Newscatcher.Client/1.2.0" },
+                { "User-Agent", "Newscatcher.Client/0.0.0-fern-placeholder" },
             }
         );
-        clientOptions ??= new ClientOptions();
-        foreach (var header in defaultHeaders)
+        foreach (var header in platformHeaders)
         {
             if (!clientOptions.Headers.ContainsKey(header.Key))
             {
                 clientOptions.Headers[header.Key] = header.Value;
             }
         }
-        _client = new RawClient(clientOptions);
+        var clientOptionsWithAuth = clientOptions.Clone();
+        var authHeaders = new Headers(
+            new Dictionary<string, string>() { { "x-api-token", apiKey ?? "" } }
+        );
+        foreach (var header in authHeaders)
+        {
+            clientOptionsWithAuth.Headers[header.Key] = header.Value;
+        }
+        _client = new RawClient(clientOptionsWithAuth);
         Search = new SearchClient(_client);
-        Latestheadlines = new LatestheadlinesClient(_client);
+        LatestHeadlines = new LatestHeadlinesClient(_client);
         BreakingNews = new BreakingNewsClient(_client);
         Authors = new AuthorsClient(_client);
-        SearchLink = new SearchLinkClient(_client);
-        Searchsimilar = new SearchsimilarClient(_client);
+        SearchByLink = new SearchByLinkClient(_client);
         Sources = new SourcesClient(_client);
-        Aggregation = new AggregationClient(_client);
+        AggregationCount = new AggregationCountClient(_client);
         Subscription = new SubscriptionClient(_client);
     }
 
-    public SearchClient Search { get; }
+    public ISearchClient Search { get; }
 
-    public LatestheadlinesClient Latestheadlines { get; }
+    public ILatestHeadlinesClient LatestHeadlines { get; }
 
-    public BreakingNewsClient BreakingNews { get; }
+    public IBreakingNewsClient BreakingNews { get; }
 
-    public AuthorsClient Authors { get; }
+    public IAuthorsClient Authors { get; }
 
-    public SearchLinkClient SearchLink { get; }
+    public ISearchByLinkClient SearchByLink { get; }
 
-    public SearchsimilarClient Searchsimilar { get; }
+    public ISourcesClient Sources { get; }
 
-    public SourcesClient Sources { get; }
+    public IAggregationCountClient AggregationCount { get; }
 
-    public AggregationClient Aggregation { get; }
-
-    public SubscriptionClient Subscription { get; }
+    public ISubscriptionClient Subscription { get; }
 }

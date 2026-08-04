@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using global::System.Text.Json;
+using global::System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -8,13 +8,17 @@ namespace NewscatcherApi;
 /// Natural Language Processing data for the article.
 /// </summary>
 [Serializable]
-public record NlpDataEntity
+public record NlpDataEntity : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// A brief AI-generated summary of the article's English translation.
     /// </summary>
-    [JsonPropertyName("summary_translated")]
-    public string? SummaryTranslated { get; set; }
+    [JsonPropertyName("translation_summary")]
+    public string? TranslationSummary { get; set; }
 
     /// <summary>
     /// The themes or categories identified in the article.
@@ -32,12 +36,20 @@ public record NlpDataEntity
     public SentimentScores? Sentiment { get; set; }
 
     /// <summary>
-    /// A dense 1024-dimensional vector representation of the article content, generated using  the [multilingual-e5-large](https://huggingface.co/intfloat/multilingual-e5-large) model.
+    /// A dense 1024-dimensional vector representation of the article content, generated using the [multilingual-e5-large](https://huggingface.co/intfloat/multilingual-e5-large) model. Available for articles indexed before January 1, 2026.
     ///
-    /// **Note**: The `new_embedding` field is only available in the `v3_local_news_nlp_embeddings` subscription plan.
+    /// **Note**: The `new_embedding` field is only available in the `v3_nlp_embeddings` subscription plan.
     /// </summary>
     [JsonPropertyName("new_embedding")]
     public IEnumerable<float>? NewEmbedding { get; set; }
+
+    /// <summary>
+    /// A dense 1024-dimensional vector representation of the article content, generated using the [Qwen3-Embedding-0.6B](https://huggingface.co/Qwen/Qwen3-Embedding) model. Available for articles indexed from January 1, 2026 onward. Embeddings are computed from a combination of the article `title` and `content` fields.
+    ///
+    /// **Note**: The `qwen_embedding` field is only available in the `v3_nlp_embeddings` subscription plan.
+    /// </summary>
+    [JsonPropertyName("qwen_embedding")]
+    public IEnumerable<float>? QwenEmbedding { get; set; }
 
     /// <summary>
     /// Named Entity Recognition for person entities (individuals' names).
@@ -111,15 +123,11 @@ public record NlpDataEntity
     [JsonPropertyName("iab_tags_name")]
     public IEnumerable<string>? IabTagsName { get; set; }
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()

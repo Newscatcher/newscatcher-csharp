@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using global::System.Text.Json;
+using global::System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -8,23 +8,23 @@ namespace NewscatcherApi;
 /// A single item in the aggregations array containing a collection of time-based article counts.
 /// </summary>
 [Serializable]
-public record AggregationItem
+public record AggregationItem : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// Array of time frames and their corresponding article counts
     /// </summary>
     [JsonPropertyName("aggregation_count")]
     public IEnumerable<TimeFrameCount> AggregationCount { get; set; } = new List<TimeFrameCount>();
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
