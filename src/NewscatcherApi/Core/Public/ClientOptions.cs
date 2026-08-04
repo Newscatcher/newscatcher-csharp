@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Net.Http;
 using NewscatcherApi.Core;
 
 namespace NewscatcherApi;
@@ -32,7 +30,7 @@ public partial class ClientOptions
 #else
         set;
 #endif
-    } = new HttpClient();
+    } = DefaultHttpClientFactory.Create();
 
     /// <summary>
     /// Additional headers to be sent with HTTP requests.
@@ -47,7 +45,7 @@ public partial class ClientOptions
     } = [];
 
     /// <summary>
-    /// The http client used to make requests.
+    /// The max number of retries to attempt.
     /// </summary>
     public int MaxRetries { get;
 #if NET5_0_OR_GREATER
@@ -66,7 +64,7 @@ public partial class ClientOptions
 #else
         set;
 #endif
-    } = TimeSpan.FromSeconds(30);
+    } = TimeSpan.FromMilliseconds(30000);
 
     /// <summary>
     /// Clones this and returns a new instance
@@ -80,6 +78,7 @@ public partial class ClientOptions
             MaxRetries = MaxRetries,
             Timeout = Timeout,
             Headers = new Headers(new Dictionary<string, HeaderValue>(Headers)),
+            AdditionalHeaders = AdditionalHeaders,
         };
     }
 }
