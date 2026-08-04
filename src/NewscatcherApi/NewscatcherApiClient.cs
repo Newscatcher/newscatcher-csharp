@@ -15,7 +15,7 @@ public partial class NewscatcherApiClient : INewscatcherApiClient
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "NewscatcherApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Newscatcher.Client/0.0.0-fern-placeholder" },
+                { "User-Agent", "Newscatcher.Client/1.2.1" },
             }
         );
         foreach (var header in platformHeaders)
