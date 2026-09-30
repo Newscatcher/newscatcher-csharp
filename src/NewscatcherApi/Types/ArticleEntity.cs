@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using global::System.Text.Json;
+using global::System.Text.Json.Serialization;
 using NewscatcherApi.Core;
 using OneOf;
 
@@ -9,8 +9,12 @@ namespace NewscatcherApi;
 /// The data model representing a single article in the search results.
 /// </summary>
 [Serializable]
-public record ArticleEntity
+public record ArticleEntity : IJsonOnDeserialized
 {
+    [JsonExtensionData]
+    private readonly IDictionary<string, JsonElement> _extensionData =
+        new Dictionary<string, JsonElement>();
+
     /// <summary>
     /// The title of the article.
     /// </summary>
@@ -96,7 +100,7 @@ public record ArticleEntity
     public bool? IsHeadline { get; set; }
 
     /// <summary>
-    /// Indicates if the article is paid content.
+    /// Indicates whether the source labels the article as paywalled or requiring a subscription for full access.
     /// </summary>
     [JsonPropertyName("paid_content")]
     public bool? PaidContent { get; set; }
@@ -147,7 +151,7 @@ public record ArticleEntity
     /// The content of the article.
     /// </summary>
     [JsonPropertyName("content")]
-    public required string Content { get; set; }
+    public string? Content { get; set; }
 
     /// <summary>
     /// English translation of the article title. Available when using the `search_in` parameter with the `title_translated` option or by setting the `include_translation_fields` parameter to `true`.
@@ -191,6 +195,12 @@ public record ArticleEntity
     [JsonPropertyName("all_domain_links")]
     public OneOf<IEnumerable<string>, string>? AllDomainLinks { get; set; }
 
+    /// <summary>
+    /// Detailed information about all links mentioned in the article, including link URL, domain, and anchor text. Only present when the `all_links_text` parameter is used in the request.
+    /// </summary>
+    [JsonPropertyName("all_links_data")]
+    public IEnumerable<AllLinksDataItem>? AllLinksData { get; set; }
+
     [JsonPropertyName("nlp")]
     public NlpDataEntity? Nlp { get; set; }
 
@@ -221,15 +231,11 @@ public record ArticleEntity
     [JsonPropertyName("additional_domain_info")]
     public AdditionalDomainInfoEntity? AdditionalDomainInfo { get; set; }
 
-    /// <summary>
-    /// Additional properties received from the response, if any.
-    /// </summary>
-    /// <remarks>
-    /// [EXPERIMENTAL] This API is experimental and may change in future releases.
-    /// </remarks>
-    [JsonExtensionData]
-    public IDictionary<string, JsonElement> AdditionalProperties { get; internal set; } =
-        new Dictionary<string, JsonElement>();
+    [JsonIgnore]
+    public ReadOnlyAdditionalProperties AdditionalProperties { get; private set; } = new();
+
+    void IJsonOnDeserialized.OnDeserialized() =>
+        AdditionalProperties.CopyFromExtensionData(_extensionData);
 
     /// <inheritdoc />
     public override string ToString()
